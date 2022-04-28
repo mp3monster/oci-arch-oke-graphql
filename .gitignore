@@ -31,3 +31,16 @@ Temporary Items
 .crt
 .csr
 .pem
+*.url
+
+ref-data-svc/container/app/container/app/
+
+ref-data-svc/app/
+
+ref-data-svc/bin
+
+ref-data-svc/container/app/app/
+
+ref-data-svc/container/app/
+
+ref-data-svc/container/
