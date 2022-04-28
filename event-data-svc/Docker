@@ -1,0 +1,8 @@
+FROM python:3.10-slim-buster
+ADD ./*.py ./*.json ./*.cfg 
+COPY . /app
+WORKDIR /app
+RUN pip3 install Flask
+EXPOSE 80
+CMD ["python", "ref-data.py"]
+HEALTHCHECK --start-period=5s --timeout=4s CMD curl -f localhost:8090/health || exit 1
