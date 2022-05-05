@@ -1,12 +1,15 @@
 
+# Copyright(c) 2022, Oracle and / or its affiliates.
+# All rights reserved. The Universal Permissive License(UPL), Version 1.0 as shown at http: // oss.oracle.com/licenses/upl
+#
 # useful resources
 # https://flask.palletsprojects.com/en/2.1.x/
-# https://docs.python.org/3/library/xml.etree.elementtree.html
+#
+
 
 from importlib.metadata import metadata
 import json
-from pickle import FALSE, TRUE
-from flask import Flask, request
+from flask import Flask, request, Response
 import configparser
 from decimal import *
 
@@ -67,7 +70,7 @@ def getmetadata():
 
 
 def stringelement(properties, testvalue, attributename):
-    result = FALSE
+    result = False
     value = properties[attributename]
     if (value != None) and (testvalue != None):
         value = str(value)
@@ -81,7 +84,7 @@ def stringelement(properties, testvalue, attributename):
 
 
 def booleanelement(properties, testvalue, attributename):
-    result = FALSE
+    result = False
     value = properties[attributename]
     if (value != None) and (testvalue != None):
         value = str(value)
@@ -99,7 +102,7 @@ def booleanelement(properties, testvalue, attributename):
 
 
 def numericelement(properties, testvalue, attributename):
-    result = FALSE
+    result = False
     actualattributename = attributename
     if attributename in operatorcriteriamap:
         actualattributename = operatorcriteriamap[attributename]
@@ -142,7 +145,7 @@ criteriamap = {"mintime": numericelement,
                "alert": stringelement, }
 
 
-@app.route('/event')
+@app.route('/event', methods=['GET'])
 def getevent():
     matchedevents = list()
     eventid = ""
@@ -162,6 +165,24 @@ def getevent():
         responsestr = json.dumps(matchedevents, indent=2, sort_keys=True)
 
     return responsestr
+
+
+@app.route('/event', methods=['DELETE'])
+def deleteevent():
+    response = Response(status=410)
+    eventid = ""
+    if (request.args != None) and (len(request.args) > 0) and "id" in request.args:
+        # special case
+        eventid = request.args['id']
+        for event in eventdata:
+            if (event['id'] != None) and (event['id'] == eventid):
+                eventdata.remove(event)
+                response = Response(status=200)
+                break
+    else:
+        print("No search criteria set returning everything")
+
+    return response
 
 
 def matchlisttostring(matchedevents):
@@ -187,8 +208,8 @@ def createsearchcriteria(args):
     return searchcriteria
 
 
-@app.route('/events/')
-@app.route('/events')
+@app.route('/events/', methods=['GET'])
+@app.route('/events', methods=['GET'])
 def getevents():
     matchedevents = list()
     searchcriteria = createsearchcriteria(request.args)
@@ -196,7 +217,7 @@ def getevents():
     if searchcriteria != None:
         # examine each event
         for event in eventdata:
-            matched = TRUE
+            matched = True
             properties = event.get('properties')
             for criteria in searchcriteria:
                 if criteria in criteriamap:
@@ -204,7 +225,7 @@ def getevents():
                         properties, searchcriteria.get(criteria), criteria)
                 else:
                     print("unknown search criteria - " + criteria)
-                if matched == FALSE:
+                if matched == False:
                     break
             # didnt fail any of the search criteria
             if (matched):
