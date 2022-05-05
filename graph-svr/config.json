@@ -1,0 +1,4 @@
+{
+  "event-svc-base" : "event-svc",
+  "ref-data-svc-base" : "ref-data-svc"
+}
