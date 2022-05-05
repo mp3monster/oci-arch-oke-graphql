@@ -1,8 +1,10 @@
-
+# Copyright(c) 2022, Oracle and / or its affiliates.
+# All rights reserved. The Universal Permissive License(UPL), Version 1.0 as shown at http: // oss.oracle.com/licenses/upl
+#
 # useful resources
 # https://flask.palletsprojects.com/en/2.1.x/
 
-from flask import Flask, request
+from flask import Flask, request, Response
 import configparser
 import json
 import os
@@ -27,7 +29,7 @@ def loaddata(config):
     return refdata
 
 
-def preprovideralternates(providerdata):
+def prep_provider_alternates(providerdata):
     updatedprovider = providerdata.copy()
 
     print("provider count=" + str(len(providerdata)))
@@ -55,7 +57,7 @@ def get_provider_by_id(id):
     return None
 
 
-def getbyname(name):
+def get_provider_by_name(name):
     print("looking for " + name)
     for providerid in providerdata:
         if (providerdata[providerid].lower().contains(name.lower())):
@@ -63,8 +65,8 @@ def getbyname(name):
     return None
 
 
-@ app.route('/provider')
-def getprovider():
+@ app.route('/provider', methods=['GET'])
+def get_provider():
     refelement = None
     resultstr = ""
 
@@ -73,7 +75,7 @@ def getprovider():
             if (arg == "id"):
                 refelement = get_provider_by_id(request.args['id'])
             elif (arg == "name"):
-                refelement = getbyname(request.args['name'])
+                refelement = get_provider_by_name(request.args['name'])
     else:
         refelement = providerdata
 
@@ -83,27 +85,46 @@ def getprovider():
     return resultstr
 
 
+@ app.route('/provider', methods=['DELETE'])
+def delete_provider():
+    response = Response(status=410)
+    if (request.args != None) and (len(request.args) > 0)):
+        id=request.args['id'];
+        if (id != None):
+            for providerId in providerdata:
+                provider=providerdata[providerId]
+                if (provider['code'].lower() == id):
+                    providerdata.remove(providerId)
+                    response=Response(status = 200)
+                elif 'aka' in provider:
+                    aka_list=provider['aka']
+                    if id in aka_list:
+                        aka_list.remove(id)
+
+
+    return response
+
 @ app.route('/test/')
 def test():
     return "hello world"
 
 
-@app.route('/health')
+@ app.route('/health')
 def health():
-    status = dict()
-    status['provider-data'] = len(providerdata)
-    status['config'] = config
-    return json.dumps(status, indent=2, sort_keys=False)
+    status=dict()
+    status['provider-data']=len(providerdata)
+    status['config']=config
+    return json.dumps(status, indent = 2, sort_keys = False)
 
 
-config = getconfig()
-os.environ['host'] = config.get('server', 'host')
-os.environ['port'] = config.get('server', 'port')
+config=getconfig()
+os.environ['host']=config.get('server', 'host')
+os.environ['port']=config.get('server', 'port')
 
-providerdata = loaddata(config)
-providerdata = preprovideralternates(providerdata)
+providerdata=loaddata(config)
+providerdata=prep_provider_alternates(providerdata)
 
 if __name__ == '__main__':
-    app.run(debug=config.getint('server', 'debug'),
-            port=config.getint('server', 'port'),
-            host=config.get('server', 'host'))
+    app.run(debug = config.getint('server', 'debug'),
+            port = config.getint('server', 'port'),
+            host = config.get('server', 'host'))
