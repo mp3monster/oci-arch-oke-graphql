@@ -1,0 +1,15 @@
+# Copyright(c) 2022, Oracle and / or its affiliates.
+# All rights reserved. The Universal Permissive License(UPL), Version 1.0 as shown at http: // oss.oracle.com/licenses/upl
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ref-data-svc
+  labels:
+    role: webserver-role
+    app: ref-data-svc
+spec:
+  containers:
+  - name: ref-data-svc
+    image: ref-data-svc:latest
+    ports:
+     - containerPort:8090
