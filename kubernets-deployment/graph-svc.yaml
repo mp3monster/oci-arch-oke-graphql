@@ -1,0 +1,17 @@
+# Copyright(c) 2022, Oracle and / or its affiliates.
+# All rights reserved. The Universal Permissive License(UPL), Version 1.0 as shown at http: // oss.oracle.com/licenses/upl
+apiVersion: v1
+kind: Service
+metadata:
+  name: graph-service  
+  labels:
+    app: oke-graphql
+spec:
+  ports:
+  - nodePort: 30500
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: oke-graphql
+  type: NodePort
