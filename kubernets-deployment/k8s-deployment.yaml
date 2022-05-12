@@ -1,0 +1,31 @@
+# Copyright(c) 2022, Oracle and / or its affiliates.
+# All rights reserved. The Universal Permissive License(UPL), Version 1.0 as shown at http: // oss.oracle.com/licenses/upl
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oke-graphql
+  labels:
+	app: oke-graphql
+spec:
+  replicas: 1
+  selector:
+    matchlabels:
+      app: oke-graphql
+template:
+  metadata:
+    labels:
+      app: oke-graphql
+  spec:
+    containers:
+    - name: graph-svr-svc
+	      image: graph-svr-svc:latest
+	      ports:
+ 	      - containerPort:4000      
+    - name: ref-data-svc
+	      image: ref-data-svc:latest
+	      ports:
+ 	      - containerPort:8090
+    - name: event-data-svc
+	      image: event-data-svc:latest
+	      ports:
+ 	      - containerPort:8080
