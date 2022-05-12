@@ -4,7 +4,7 @@ FROM oraclelinux:8-slim
 RUN microdnf install python38 python38-libs python38-pip python38-setuptools
 RUN update-alternatives --set python3 /usr/bin/python3.8
 RUN python3 -m pip install Flask
-ADD *.py *.json *.cfg 
+ADD *.py *.json *.cfg ./
 COPY . /app
 WORKDIR /app
 EXPOSE 80
