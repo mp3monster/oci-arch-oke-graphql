@@ -11,15 +11,27 @@ MISSING
 MISSING
 
 ### Prerequisites
-MISSING
+This Reference Architecture is not yet equipped with one click deploy. However the deployment process can be accelerated by using the following automated deployment - https://docs.oracle.com/en/solutions/deploy-oke-with-atp-in-oci/index.html but during the configuration value setting in the Resource Manager you can omit the deployment of the ATP.
 
+Once done the infrastructure will also need Oracle Container Registries (OCIR) created for:
+- graphql-svr
+- event-data-svc
+- ref-data-svc
+  
+
+Creation of a Virtual Service Gateway so that OKE can see OCIR.
+2 user auth keys. 1 to be put into a secret as described by XXX
 ## Notes/Issues
 MISSING
 
 ## URLs
-* Nothing at this time
+
+* [OCIR Overview](https://docs.oracle.com/en-us/iaas/Content/Registry/Concepts/registryoverview.htm)
+* [OKE docs](https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm)
+* [Deploying from OCIR into OKE](https://www.oracle.com/webfolder/technetwork/tutorials/obe/oci/oke-and-registry/index.html) - setup steps
 
 ## Contributing
+
 This project is open source.  Please submit your contributions by forking this repository and submitting a pull request!  Oracle appreciates any contributions that are made by the open source community.
 
 ## License
