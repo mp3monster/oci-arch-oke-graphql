@@ -1,11 +1,11 @@
 # Copyright(c) 2022, Oracle and / or its affiliates.
 # All rights reserved. The Universal Permissive License(UPL), Version 1.0 as shown at http: // oss.oracle.com/licenses/upl
+apiVersion: v1
 kind: Service
 metadata:
-  name: ref-data-svc  
+  name: graph-svr-svc  
   labels:
     app: arch-oke-graphql
-    role: graphql-resolver
 spec:
   selector:
     app.kubernetes.io/name: proxy
@@ -13,4 +13,19 @@ spec:
   - name: name-of-service-port
     protocol: TCP
     port: 80
-    targetPort: ref-data-http-web-svc
+    targetPort: graph-svr-http-web-svc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lb-graph-svc 
+  labels:
+    app: nginx
+  annotations:
+    oci.oraclecloud.com/load-balancer-type: "lb"
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: nginx
