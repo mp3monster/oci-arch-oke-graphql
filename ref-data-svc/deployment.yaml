@@ -6,7 +6,7 @@ metadata:
   name: ref-data-deploy
   role: graphql-resolver
   labels:
-  app: arch-oke-graphql
+    app: arch-oke-graphql
 spec:
   replicas: 1
   selector:

@@ -5,7 +5,7 @@ kind: Deployment
 metadata:
   name: graph-svr-deploy
   labels:
-  app: arch-oke-graphql
+    app: arch-oke-graphql
 spec:
   replicas: 1
   selector:
