@@ -9,7 +9,7 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchlabels:
+    matchLabels:
       app: arch-oke-graphql
   template:
     metadata:
