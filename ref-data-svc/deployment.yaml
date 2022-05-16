@@ -4,7 +4,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ref-data-deploy
-  role: graphql-resolver
   labels:
     app: arch-oke-graphql
 spec:
