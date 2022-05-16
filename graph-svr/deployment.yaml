@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: graph-svr
-        image: iad.ocir.io/ociobenablement/graph-svr:latest 
+        image: iad.ocir.io/ociobenablement/graphql-svr:latest 
         #ToDo Need to make this configurable OR push resources to a universal repo like Docker or GitHub
         ports:
         - containerPort: 4000    
