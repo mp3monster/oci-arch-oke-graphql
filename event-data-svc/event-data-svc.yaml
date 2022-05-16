@@ -13,4 +13,4 @@ spec:
   - name: name-of-service-port
     protocol: TCP
     port: 80
-    targetPort: event-data-http-web-svc
+    targetPort: event-data-web

@@ -23,6 +23,6 @@ spec:
         #ToDo Need to make this configurable OR push resources to a universal repo like Docker or GitHub
         ports:
         - containerPort: 4000    
-          name: graph-svr-http-web-svc
+          name: graph-svr-web
       imagePullSecrets:
       - name: ocirsecret     

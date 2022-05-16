@@ -13,7 +13,7 @@ spec:
   - name: name-of-service-port
     protocol: TCP
     port: 80
-    targetPort: graph-svr-http-web-svc
+    targetPort: graph-svr-web
 ---
 apiVersion: v1
 kind: Service

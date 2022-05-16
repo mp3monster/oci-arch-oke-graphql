@@ -24,6 +24,6 @@ spec:
         #ToDo Need to make this configurable OR push resources to a universal repo like Docker or GitHub
         ports:
         - containerPort: 8080    
-          name: event-data-http-web-svc
+          name: event-data-web
       imagePullSecrets:
       - name: ocirsecret
