@@ -9,5 +9,5 @@ RUN npm install
 COPY . /app
 WORKDIR /app
 EXPOSE 4000
-CMD ["/bin/npm", " start index.js"]
-HEALTHCHECK --start-period=5s --timeout=5s CMD curl -f localhost:4000/ || exit 1
+ENTRYPOINT ["/bin/npm", " start index.js"]
+HEALTHCHECK --start-period=300s --timeout=60s CMD curl -f localhost:4000/ || exit 1

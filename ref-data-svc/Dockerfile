@@ -8,5 +8,5 @@ ADD *.py *.json *.cfg ./
 COPY . /app
 WORKDIR /app
 EXPOSE 8090
-CMD ["python3", "ref-data.py"]
-HEALTHCHECK --start-period=5s --timeout=4s CMD curl -f localhost:8090/health || exit 1
+ENTRYPOINT ["python3", "ref-data.py"]
+HEALTHCHECK --start-period=300s --timeout=60s CMD curl -f localhost:8090/health || exit 1
