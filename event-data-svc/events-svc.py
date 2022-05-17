@@ -9,6 +9,7 @@
 
 from importlib.metadata import metadata
 import json
+import os
 from flask import Flask, request, Response
 import configparser
 from decimal import *
@@ -148,12 +149,12 @@ criteriamap = {"mintime": numericelement,
 @app.route('/event', methods=['GET'])
 def getevent():
     matchedevents = list()
-    eventid = ""
+    event_id = ''
     if (request.args != None) and (len(request.args) > 0) and "id" in request.args:
         # special case
-        eventid = request.args['id']
+        event_id = request.args['id']
         for event in eventdata:
-            if (event['id'] != None) and (event['id'] == eventid):
+            if (event['id'] != None) and (event['id'] == event_id):
                 matchedevents.append(event)
                 break
 
@@ -170,12 +171,12 @@ def getevent():
 @app.route('/event', methods=['DELETE'])
 def deleteevent():
     response = Response(status=410)
-    eventid = ""
+    event_id = ''
     if (request.args != None) and (len(request.args) > 0) and "id" in request.args:
         # special case
-        eventid = request.args['id']
+        event_id = request.args['id']
         for event in eventdata:
-            if (event['id'] != None) and (event['id'] == eventid):
+            if (event['id'] != None) and (event['id'] == event_id):
                 eventdata.remove(event)
                 response = Response(status=200)
                 break
@@ -208,6 +209,20 @@ def createsearchcriteria(args):
     return searchcriteria
 
 
+def applycriteria(searchcriteria, properties):
+    matched = True
+    for criteria in searchcriteria:
+        if criteria in criteriamap:
+            matched = criteriamap[criteria](
+                properties, searchcriteria.get(criteria), criteria)
+        else:
+            print("unknown search criteria - " + criteria)
+        if matched == False:
+            break
+            # didn't fail any of the search criteria
+    return matched
+
+
 @app.route('/events/', methods=['GET'])
 @app.route('/events', methods=['GET'])
 def getevents():
@@ -217,18 +232,8 @@ def getevents():
     if searchcriteria != None:
         # examine each event
         for event in eventdata:
-            matched = True
             properties = event.get('properties')
-            for criteria in searchcriteria:
-                if criteria in criteriamap:
-                    matched = criteriamap[criteria](
-                        properties, searchcriteria.get(criteria), criteria)
-                else:
-                    print("unknown search criteria - " + criteria)
-                if matched == False:
-                    break
-            # didnt fail any of the search criteria
-            if (matched):
+            if (applycriteria(searchcriteria, properties)):
                 print("match for " + str(event))
                 matchedevents.append(event)
 
