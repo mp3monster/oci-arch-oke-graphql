@@ -46,9 +46,5 @@ ref-data-svc/container/app/
 ref-data-svc/container/
 
 graph-svr/node_modules/
-
-graph-svr/package-lock.json
-
-*.bat
-
 *.sh
+graph-svr/package-lock.json
