@@ -9,13 +9,14 @@
     The queries and mutators are defined at the end of the schema
 """
  
-""" Defines the location or Geometry of the event based upon geojson.org """
+# Defines the location or Geometry of the event based upon geojson.org 
   type GeometryType { 
     geoType: GeometryTypesEnum!
     coordinates: [String]!
   }
 
-  type GeometryInput { # geojson.org defines this structure
+  """ geojson.org defines this structure  """
+  input GeometryInput {
     geoType: GeometryTypesEnum!
     coordinates: [String]!
   }
@@ -63,7 +64,8 @@
     id:ID!
   }
 
-    input EventInput { # where the values is not explained it is a direct correlation to EventType
+  # where the values is not explained it is a direct correlation to EventType
+    input EventInput { 
     magnitude: String,
     place: String,
     time: Int,            # treated as either the creation timer for a new record or the update time
@@ -96,7 +98,7 @@
     alias:[String]      # exists IF there are alternate / alias codes for this provider
   }
 
-  type ProviderInput {
+  input ProviderInput {
     code: String!,
     name:String,
     alias:[String]
@@ -144,8 +146,8 @@
 
  type Mutation {
     changeEvent (event:EventInput) :EventType
-    removeEvent(id:ID) :{} # as we're deleting, a successful delete should reflect an empty structure
+    removeEvent(id:ID) : Boolean  # as we're deleting, a successful delete should reflect an empty structure
  
     changeProvider (provider:ProviderInput):ProviderType
-    removeProvider (code:String) : {}
+    removeProvider (code:String) : Boolean
   }

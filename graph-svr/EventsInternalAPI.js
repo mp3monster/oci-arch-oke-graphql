@@ -51,5 +51,6 @@ export default class EventsInternalAPI extends RESTDataSource {
   // DELETE
   async deleteEvent(Id) {
     request.params.set('id', id);
-    return this.delete(`event`);    
+    return this.delete(`event`);
+  }
 }
