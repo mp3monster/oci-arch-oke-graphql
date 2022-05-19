@@ -46,5 +46,7 @@ ref-data-svc/container/app/
 ref-data-svc/container/
 
 graph-svr/node_modules/
-*.sh
+
 graph-svr/package-lock.json
+
+token.txt
