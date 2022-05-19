@@ -50,3 +50,5 @@ graph-svr/node_modules/
 graph-svr/package-lock.json
 
 token.txt
+
+*/deploy.sh
