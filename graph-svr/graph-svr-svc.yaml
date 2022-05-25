@@ -10,7 +10,7 @@ spec:
   selector:
     app.kubernetes.io/name: proxy
   ports:
-  - name: name-of-service-port
+  - name: graph-svr-ports
     protocol: TCP
     port: 80
     targetPort: graph-svr-web
