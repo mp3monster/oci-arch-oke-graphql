@@ -88,7 +88,7 @@ def get_provider():
 @ app.route('/provider', methods=['DELETE'])
 def delete_provider():
     response = Response(status=410)
-    if (request.args != None) and (len(request.args) > 0)):
+    if (request.args != None) and (len(request.args) > 0):
         id=request.args['id'];
         if (id != None):
             for providerId in providerdata:
@@ -114,12 +114,19 @@ def health():
     status=dict()
     status['provider-data']=len(providerdata)
     status['config']=config
-    return json.dumps(status, indent = 2, sort_keys = False)
+
+    json = json.dumps(status, indent = 2, sort_keys = False)
+    print (json)
+    return json
 
 
 config=getconfig()
 os.environ['host']=config.get('server', 'host')
 os.environ['port']=config.get('server', 'port')
+
+print ("debug ==>" + str(config.get('server', 'debug')))
+print ("port ==>" + str(config.getint('server', 'port')))
+print ("host ==>" + config.get('server', 'host'))
 
 providerdata=loaddata(config)
 providerdata=prep_provider_alternates(providerdata)
