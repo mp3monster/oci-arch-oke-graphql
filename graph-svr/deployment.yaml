@@ -3,7 +3,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: graph-svr-deploy
+  name: graphql-svr-deploy
   labels:
     app: arch-oke-graphql
 spec:
@@ -13,34 +13,34 @@ spec:
       app: arch-oke-graphql
   template:
     metadata:
-      name: graph-svr-deploy
+      name: graphql-svr-deploy
       labels:
         app: arch-oke-graphql
     spec:
       containers:
-      - name: graphql-svr
-        image: iad.ocir.io/ociobenablement/graphql-svr:latest 
+      - name: graphql-svr-svc
+        image: iad.ocir.io/ociobenablement/graphql-svr-svc:latest 
         #ToDo Need to make this configurable OR push resources to a universal repo like Docker or GitHub
         ports:
         - containerPort: 4000    
           name: graph-svr-web
-        livenessProbe:
-          exec:
-            command:
-            - /app/probe.sh
-            - liveness
-          initialDelaySeconds: 300
-          periodSeconds: 60
-          timeoutSeconds: 20
-          failureThreshold: 5
-        readinessProbe:
-          exec:
-            command:
-             - /app/probe.sh
-             - readiness
-          initialDelaySeconds: 300
-          periodSeconds: 60
-          timeoutSeconds: 20
-          failureThreshold: 5
+        #livenessProbe:
+        #  exec:
+        #    command:
+        #    - /app/probe.sh
+        #    - liveness
+        #  initialDelaySeconds: 60
+        #  periodSeconds: 60
+        #  timeoutSeconds: 20
+        #  failureThreshold: 5
+        #readinessProbe:
+        #  exec:
+        #    command:
+        #     - /app/probe.sh
+        #     - readiness
+        #  initialDelaySeconds: 60
+        #  periodSeconds: 60
+        #  timeoutSeconds: 20
+        #  failureThreshold: 5
       imagePullSecrets:
       - name: ocirsecret     
