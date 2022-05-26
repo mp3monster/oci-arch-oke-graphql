@@ -30,26 +30,48 @@ To be able to experiment with the solution you will need to set up the developme
 
 ### Prerequisites
 
+Regardless of the approach if you want to deploy using any means other than the OCI Console then the following tools are needed. These need to be deployed in this order:
+
+1. OCI CLI
+2. Docker
+3. Kubectl
+
 #### Developer tooling
 
-- Node JS & Python 3 along with their tools
-- Docker
-
-The following tooling needs to be installed:
-
-- Kubernetes CLI (kubectl)
-- OCI CLI
-
-We would also recommend using an IDE such as Visual Studio Code.
+- Node JS
+- Python 3
+- Docker 
+- IDE such as Visual Studio Code
 
 #### OCI Setup
 
-OCI needs to be configured with the services illustrated in the architecture diagram - available at XXX. In the deployment we would recommend the following items be included:
+The environment setup can be done in several ways. To make life simple and easy to master the development and scaling of GraphQL and OKE we would recommend a developer configuration. Everything is placed into a single compartment. Regardless of the approach, the following order needs to be observed:
 
-- Public IP for OKE so that the resolver services can be exercised directly (simplify testing) - this can be disabled in the future.
-- The API Gateway is deployed in the public subnet. The network traffic will require the routing to be permissible from the gateway.
-- Configuration of the Gateways as described [here](./docs/api-config.md).
-- The microservices need to be deployed. The details to do that are [here](./docs/k8s-configuration).
+1. Create OKE by either - Creating the relevant environment can be done a couple of ways ...
+
+   1. Build on top of an existing RA such as XXXX.
+   2. From scratch
+      - If using the Quick Create Wizard, the key is to ensure that endpoints are public and the nodes are private
+
+2. Create the OCIR repository, with the following repositories:
+
+   1. *event-data-svc*
+   2. *graphql-svr-svc*
+   3. *ref-data-svc*
+
+   - the naming is important, as the names are used within the utility scripts
+
+3. Configuration of the Gateways as described [here](./docs/api-config.md).
+
+4. Ensure that the network security settings needed for the gateway and Kubernetes exist.
+
+5. install the [prerequisites](./README.md#prerequisites) if the microservices are going to be deployed locally
+
+6. Create a secret and apply it to OKE (details  [here](./docs/k8s-configuration#set-secret)).
+
+7. The microservices need to be deployed. The details to do that are [here](./docs/k8s-configuration).
+
+8. With everything deployed, we can exercise the APIs both via the direct strategic approach using the GraphQL server. We have provided some example calls to allow the GraphQL to be exercised here.
 
 ## Notes/Issues
 
