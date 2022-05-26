@@ -1,7 +1,6 @@
-
 #!/bin/bash
 
-dte = date
+dte=date
 
 # Readiness check
 if [[ "$1" == "readiness" ]] ; then
