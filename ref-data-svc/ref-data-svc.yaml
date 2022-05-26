@@ -11,7 +11,7 @@ spec:
   selector:
     app.kubernetes.io/name: proxy
   ports:
-  - name: ref-data-service-port
+  - name: ref-data-port
     protocol: TCP
     port: 80
     targetPort: ref-data-web
