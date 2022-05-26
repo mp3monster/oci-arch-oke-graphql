@@ -6,11 +6,11 @@
 # $3 is the Tenancy name
 # $4 is the OCI Region in short form e.g. iad
 
-name=graphql-svr-svc
+name=event-data-svc
 
 echo "deploying for  $1"
 docker login -u ${3}/identitycloudservice/${1} -p $2 ${4}.ocir.io
-docker buildx build --platform linux/amd64 --push -t ${4}.ocir.io/${3}/event-data-svc:latest .
+docker buildx build --platform linux/amd64 --push -t ${4}.ocir.io/${3}/${name}:latest .
 # docker buildx build --platform linux/amd64 --push -t ${4}.ocir.io/${3}/${name}:latest
 docker logout $4.ocir.io/${3}/
 kubectl apply -f ./deployment.yaml

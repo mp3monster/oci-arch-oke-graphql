@@ -13,7 +13,7 @@ echo "deploying for  $1"
 docker login -u ${3}/identitycloudservice/${1} -p $2  ${4}.ocir.io
 docker buildx build --platform linux/amd64 --push -t ${4}.ocir.io/ociobenablement/${name}:latest .
 #docker logout ${4}.ocir.io/${3}/
-kubectl delete deployment ${name}-deployment
+kubectl delete deployment ${name}-deploy
 sleep 15
 kubectl apply -f ./deployment.yaml
 kubectl apply -f ./${name}.yaml
