@@ -2,11 +2,11 @@
 # All rights reserved. The Universal Permissive License(UPL), Version 1.0 as shown at http: // oss.oracle.com/licenses/upl
 FROM oraclelinux:8
 WORKDIR /app
-EXPOSE 4000
+EXPOSE 80
 ADD *.json *.cfg *.js *.graphql probe.sh ./
 RUN dnf -y module enable nodejs:16 && \
   dnf -y install nodejs npm && \
   rm -rf /var/cache/dnf
 RUN npm install
-HEALTHCHECK --start-period=60s --timeout=60s CMD curl -f localhost:8090/graphql?query=%7B__typename%7D || exit 1
+HEALTHCHECK --start-period=60s --timeout=60s CMD curl -f localhost:80/graphql?query=%7B__typename%7D || exit 1
 ENTRYPOINT ["/bin/npm", "start"]
