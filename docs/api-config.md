@@ -4,11 +4,19 @@
 
 We want to create several simple Deployments into the API Gate. Each of the following sections describes the API and the deployment parameters
 
-Where URLS are required these need to be URLs of the Kubernetes entry points. These can be set by copying the **Kubernetes API Private Endpoint** the OKE configuration and appending the service name to the end, so you should have something like:
+Where URLS are required these need to be URLs of the Kubernetes entry points. These can be set by copying the **Kubernetes API Private Endpoint** to the OKE configuration and appending the service name to the end, so you should have something like:
 
-***10.0.0.131:6443***/ref-data-svc
+***10.0.0.131:6443***/graphql-svc
 
-## Test
+
+
+##### Directly Calling Resolvers
+
+For test Routes 2 and 3 to work it will be necessary to create an ingress point for the services ref-data-svc and event-data-svc. This can be done utilizing the prepared Kubernetes yaml file called ref-data-ingress.yaml and event-data-ingress.yaml respectively. This can then be applied with the command *kubectl apply -f ./ref-data-ingress.yaml* which will expose the REST endpoints (without any load balancing). To remove these endpoints as we would in a production-like setup we can use the command *kubectl remove ingress ref-data-ingress* (and event-data-ingress for the corresponding ingress point).
+
+Note: We assume you have deployed the main graphql-svr as this sets up the ingress controller that will be needed.
+
+## Test API Deployment
 
 This will allow us to validate that we can invoke the API Gateway properly and will return a result through the correct path. Once everything is deployed correctly this can be deleted. Within the test group, we will include direct paths to our resolvers for the purposes of testing and changes.
 
@@ -80,7 +88,7 @@ This will allow us to validate that we can invoke the API Gateway properly and w
 
 
 
-## GraphQL
+## GraphQL API Deployment8
 
 This endpoint will direct the traffic to our GraphQL server.  We will prefix the path for our implemented services as /svc so our services would be /svc/data
 
@@ -119,8 +127,8 @@ This endpoint will direct the traffic to our GraphQL server.  We will prefix the
 
 | Attribute                                   | Value                  |
 | ------------------------------------------- | ---------------------- |
-| Path                                        | /svc                   |
-| Methods                                     | GET, POST, DELETE      |
+| Path                                        | /graphql               |
+| Methods                                     | POST                   |
 | Type                                        | HTTP                   |
 | URL                                         | xxxx                   |
 | Body                                        | {"test":"response ok"} |
@@ -128,3 +136,8 @@ This endpoint will direct the traffic to our GraphQL server.  We will prefix the
 | Reading response timeout in seconds         | -- no value set --     |
 | Disable SSL verification                    | set                    |
 
+
+
+### Authentication 
+
+Once everything is running we would recommend that an authentication policy be added. The documentation to set this up is available [here](https://docs.oracle.com/en-us/iaas/Content/APIGateway/Tasks/apigatewayaddingauthzauthn.htm).
