@@ -9,9 +9,9 @@ metadata:
     role: graphql-resolver
 spec:
   selector:
-    app.kubernetes.io/name: proxy
+    app: ref-data-pod
   ports:
   - name: ref-data-port
     protocol: TCP
     port: 80
-    targetPort: ref-data-web
+    targetPort: 80

@@ -7,5 +7,5 @@ RUN update-alternatives --set python3 /usr/bin/python3.8
 RUN python3 -m pip install Flask
 ADD *.py *.json *.cfg ./
 EXPOSE 8090
-HEALTHCHECK --start-period=60s --timeout=60s CMD curl -f localhost:8090/health || exit 1
+HEALTHCHECK --start-period=60s --timeout=60s CMD curl -f localhost:80/health || exit 1
 ENTRYPOINT ["python3", "ref-data.py"]
