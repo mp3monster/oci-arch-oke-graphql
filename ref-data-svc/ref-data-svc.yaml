@@ -5,7 +5,7 @@ kind: Service
 metadata:
   name: ref-data-svc  
   labels:
-    app: arch-oke-graphql
+    app: ref-data-svc
     role: graphql-resolver
 spec:
   selector:
