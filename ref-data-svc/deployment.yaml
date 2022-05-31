@@ -5,24 +5,23 @@ kind: Deployment
 metadata:
   name: ref-data-deploy
   labels:
-    app: arch-oke-graphql
+    app: ref-data-pod
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: arch-oke-graphql
+      app: ref-data-pod
   template:
     metadata:
-      name: ref-data-deploy
+      name: ref-data-pod
       labels:
-        app: arch-oke-graphql
+        app: ref-data-pod
     spec:
       containers:
       - name: ref-data-svc
         image: iad.ocir.io/ociobenablement/ref-data-svc:latest
         #ToDo Need to make this configurable OR push resources to a universal repo like Docker or GitHub
         ports:
-        - containerPort: 8090    
-          name: ref-data-web
+        - containerPort: 80    
       imagePullSecrets:
       - name: ocirsecret    
