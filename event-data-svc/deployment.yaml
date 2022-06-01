@@ -5,17 +5,17 @@ kind: Deployment
 metadata:
   name: event-data-deploy
   labels:
-    app: arch-oke-graphql
+    app: event-data-pod
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: arch-oke-graphql
+      app: event-data-pod
   template:
     metadata:
-      name: event-data-deploy
+      name: event-data-pod
       labels:
-        app: arch-oke-graphql
+        app: event-data-pod
     spec:
       containers:
       - name: event-data-svc

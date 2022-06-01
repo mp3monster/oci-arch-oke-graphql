@@ -5,13 +5,13 @@ kind: Service
 metadata:
   name: event-data-svc  
   labels:
-    app: arch-oke-graphql
+    app: event-data-svc
     role: graphql-resolver
 spec:
   selector:
-    app.kubernetes.io/name: proxy
+    app: event-data-pod
   ports:
   - name: event-data-port
     protocol: TCP
-    port: 80
-    targetPort: event-data-web
+    port: 8080
+    targetPort: 8080
