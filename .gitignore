@@ -52,3 +52,19 @@ graph-svr/package-lock.json
 token.txt
 
 */deploy.sh
+
+ref-data-svc/ref-data-ingress.yaml
+
+ref-data-svc/Pipfile.lock
+
+ref-data-svc/Pipfile
+
+ref-data-svc/add-ingress.bat
+
+ref-data-svc/deploy.bat
+
+event-data-svc/deploy.bat
+
+graph-svr/deploy.bat
+
+oci-arch-oke-graphql.code-workspace
