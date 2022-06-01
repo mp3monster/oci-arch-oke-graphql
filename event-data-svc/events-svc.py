@@ -61,10 +61,26 @@ def cleansedata(eventdata):
 
 
 @ app.route('/test/')
+@ app.route('/test')
 def test():
-    return "hello world"
+    return "confirming, test ok"
 
 
+@ app.route('/health/')
+@ app.route('/health')
+def health():
+    status = dict()
+
+    if (eventdata != None):
+        status['event-data'] = len(eventdata)
+    status['config'] = config
+
+    json = json.dumps(status, indent=2, sort_keys=False)
+    print(json)
+    return json
+
+
+@app.route('/metadata')
 @app.route('/metadata/')
 def getmetadata():
     return metadata
@@ -181,7 +197,7 @@ def deleteevent():
                 response = Response(status=200)
                 break
     else:
-        print("No search criteria set returning everything")
+        print("No delete criteria set returning everything")
 
     return response
 

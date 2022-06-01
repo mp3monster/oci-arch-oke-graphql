@@ -67,20 +67,20 @@ def get_provider_by_name(name):
 
 @ app.route('/provider', methods=['GET'])
 def get_provider():
-    refelement = None
+    ref_element = None
     resultstr = ""
 
     if (request.args != None) and (len(request.args) > 0):
         for arg in request.args:
             if (arg == "id"):
-                refelement = get_provider_by_id(request.args['id'])
+                ref_element = get_provider_by_id(request.args['id'])
             elif (arg == "name"):
-                refelement = get_provider_by_name(request.args['name'])
+                ref_element = get_provider_by_name(request.args['name'])
     else:
-        refelement = providerdata
+        ref_element = providerdata
 
-    if (refelement != None):
-        resultstr = json.dumps(refelement, indent=2, sort_keys=False)
+    if (ref_element != None):
+        resultstr = json.dumps(ref_element, indent=2, sort_keys=False)
 
     return resultstr
 
@@ -88,50 +88,53 @@ def get_provider():
 @ app.route('/provider', methods=['DELETE'])
 def delete_provider():
     response = Response(status=410)
+    request_id = None
     if (request.args != None) and (len(request.args) > 0):
-        id=request.args['id'];
-        if (id != None):
-            for providerId in providerdata:
-                provider=providerdata[providerId]
-                if (provider['code'].lower() == id):
-                    providerdata.remove(providerId)
-                    response=Response(status = 200)
-                elif 'aka' in provider:
-                    aka_list=provider['aka']
-                    if id in aka_list:
-                        aka_list.remove(id)
+        request_id = request.args['id']
 
-
+    if (request_id != None):
+        for provider_id in providerdata:
+            provider = providerdata[provider_id]
+            if (provider['code'].lower() == id):
+                providerdata.remove(provider_id)
+                response = Response(status=200)
+            elif 'aka' in provider:
+                aka_list = provider['aka']
+                if id in aka_list:
+                    aka_list.remove(id)
     return response
 
+
+@ app.route('/test')
 @ app.route('/test/')
 def test():
-    return "hello world"
+    return "confirming, test ok"
 
 
 @ app.route('/health')
+@ app.route('/health/')
 def health():
-    status=dict()
-    status['provider-data']=len(providerdata)
-    status['config']=config
+    status = dict()
+    status['provider-data'] = len(providerdata)
+    status['config'] = config
 
-    json = json.dumps(status, indent = 2, sort_keys = False)
-    print (json)
+    json = json.dumps(status, indent=2, sort_keys=False)
+    print(json)
     return json
 
 
-config=getconfig()
-os.environ['host']=config.get('server', 'host')
-os.environ['port']=config.get('server', 'port')
+config = getconfig()
+os.environ['host'] = config.get('server', 'host')
+os.environ['port'] = config.get('server', 'port')
 
-print ("debug ==>" + str(config.get('server', 'debug')))
-print ("port ==>" + str(config.getint('server', 'port')))
-print ("host ==>" + config.get('server', 'host'))
+print("debug ==>" + str(config.get('server', 'debug')))
+print("port ==>" + str(config.getint('server', 'port')))
+print("host ==>" + config.get('server', 'host'))
 
-providerdata=loaddata(config)
-providerdata=prep_provider_alternates(providerdata)
+providerdata = loaddata(config)
+providerdata = prep_provider_alternates(providerdata)
 
 if __name__ == '__main__':
-    app.run(debug = config.getint('server', 'debug'),
-            port = config.getint('server', 'port'),
-            host = config.get('server', 'host'))
+    app.run(debug=config.getint('server', 'debug'),
+            port=config.getint('server', 'port'),
+            host=config.get('server', 'host'))
