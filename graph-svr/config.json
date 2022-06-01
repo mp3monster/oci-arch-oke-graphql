@@ -1,4 +1,4 @@
 {
-  "event-svc-base" : "event-data-svc",
-  "ref-data-svc-base" : "ref-data-svc"
+  "event-svc-base" : "event-data-svc:8080",
+  "ref-data-svc-base" : "ref-data-svc:8090"
 }
