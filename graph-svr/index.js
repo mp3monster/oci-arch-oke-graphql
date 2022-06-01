@@ -6,7 +6,7 @@ import EventsInternalAPI from './EventsInternalAPI.js';
 import { ApolloServer } from 'apollo-server';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import { resolvers } from './resolvers.js';
-import ProviderInternalAPI from './ProvideInternalAPI.js';
+import ProviderInternalAPI from './ProviderInternalAPI.js';
 
 // load from a single schema file
 const schema = loadSchemaSync('./schema.graphql', {loaders: [new GraphQLFileLoader()]});
@@ -15,7 +15,7 @@ const server = new ApolloServer({
   schema,
   resolvers,
   dataSources: () => {
-    return { eventsAPI: new eventsInternalAPI(), providerInternalAPI: new ProviderInternalAPI() }
+    return { eventsAPI: new EventsInternalAPI(), providerInternalAPI: new ProviderInternalAPI() }
   }});
 
 
