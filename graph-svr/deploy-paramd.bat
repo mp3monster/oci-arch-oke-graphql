@@ -4,7 +4,7 @@ rem build the docker image and set the tag
 # %3 is the Tenancy name
 # %4 is the OCI Region in short form e.g. iad
 
-set name=graph-svr-svc
+set name=graphql-svr-svc
 
 echo deploying %name% for %1
 echo 
