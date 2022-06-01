@@ -13,5 +13,5 @@ spec:
   ports:
   - name: ref-data-port
     protocol: TCP
-    port: 80
-    targetPort: 80
+    port: 8090
+    targetPort: 8090

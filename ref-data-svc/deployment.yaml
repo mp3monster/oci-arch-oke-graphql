@@ -22,6 +22,6 @@ spec:
         image: iad.ocir.io/ociobenablement/ref-data-svc:latest
         #ToDo Need to make this configurable OR push resources to a universal repo like Docker or GitHub
         ports:
-        - containerPort: 80    
+        - containerPort: 8090   
       imagePullSecrets:
       - name: ocirsecret    
