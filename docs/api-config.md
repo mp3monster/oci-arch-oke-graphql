@@ -20,8 +20,6 @@ Note: We assume you have deployed the main graphql-svr as this sets up the ingre
 
 This will allow us to validate that we can invoke the API Gateway properly and will return a result through the correct path. Once everything is deployed correctly this can be deleted. Within the test group, we will include direct paths to our resolvers for the purposes of testing and changes.
 
-
-
 ##### Basic Information
 
 | Attribute   | Value |
@@ -60,18 +58,24 @@ This will allow us to validate that we can invoke the API Gateway properly and w
 | Header name  | -- no value set--      |
 | Header value | -- no value set --     |
 
+#### Routes for API Gateway Protected Resolver endpoints
+
+If you wish to expose the Resolver APIs so that the gateway can be used to enable endpoint testing then the following routes will be needed. The Kubernetes will need to be exposed by running the `expose.bat` or `expose.sh` scripts in the relevant folders.
+
+The URL to be obtained will be the *EXTERNAL-IP* value from running the command `kubectl get services`. Then take the EXTERNAL IP related to the service wanted.  e.g. http://129.80.54.21
+
 #### Route 2
 
-| Attribute                                   | Value                  |
-| ------------------------------------------- | ---------------------- |
-| Path                                        | /events                |
-| Methods                                     | GET, POST, DELETE      |
-| Type                                        | HTTP                   |
-| URL                                         | xxxx                   |
-| Body                                        | {"test":"response ok"} |
-| Connection establishment timeout in seconds | -- no value set--      |
-| Reading response timeout in seconds         | -- no value set --     |
-| Disable SSL verification                    | set                    |
+| Attribute                                   | Value              |
+| ------------------------------------------- | ------------------ |
+| Path                                        | /events            |
+| Methods                                     | GET, POST, DELETE  |
+| Type                                        | HTTP               |
+| URL                                         | xxxx               |
+| Body                                        | xxx                |
+| Connection establishment timeout in seconds | -- no value set--  |
+| Reading response timeout in seconds         | -- no value set -- |
+| Disable SSL verification                    | set                |
 
 #### Route 3
 
@@ -88,9 +92,11 @@ This will allow us to validate that we can invoke the API Gateway properly and w
 
 
 
-## GraphQL API Deployment8
+## GraphQL API Deployment
 
-This endpoint will direct the traffic to our GraphQL server.  We will prefix the path for our implemented services as /svc so our services would be /svc/data
+This endpoint will direct the traffic to our GraphQL server.  We will prefix the path for our implemented services as /svc so our services would be /svc/data.
+
+The URL for the GraphQL endpoint to be obtained will be the *EXTERNAL-IP* value from running the command `kubectl get services`. Then take the EXTERNAL IP related the service *lb-graphql-svc*  e.g. http://129.80.54.21
 
 
 
@@ -130,7 +136,7 @@ This endpoint will direct the traffic to our GraphQL server.  We will prefix the
 | Path                                        | /graphql               |
 | Methods                                     | POST                   |
 | Type                                        | HTTP                   |
-| URL                                         | xxxx                   |
+| URL                                         | svc                    |
 | Body                                        | {"test":"response ok"} |
 | Connection establishment timeout in seconds | -- no value set--      |
 | Reading response timeout in seconds         | -- no value set --     |

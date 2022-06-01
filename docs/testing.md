@@ -31,4 +31,4 @@ Note: This only works because we have not applied strong security settings to th
 
 ### Invoking the GraphQL Server
 
-TBD
+We can test the GraphQL server both internally and externally. This can be done by executing the command curl -f `https:://ServerIP/graphql?query=%7B__typename%7D` with the ServerIP being the CLUSTER-IP or EXTERNAL-IP depending on whether you're exercising the command within the cluster as illustrated for the resolvers, or externally.
