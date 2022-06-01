@@ -18,7 +18,8 @@ const server = new ApolloServer({
     return { eventsAPI: new eventsInternalAPI(), providerInternalAPI: new ProviderInternalAPI() }
   }});
 
+
 // The `listen` method launches a web server.
-server.listen().then(({ url }) => {
+server.listen({ port: 80,}).then(({ url }) => {
   console.log(`🚀  Server ready at ${url}`);
 });
