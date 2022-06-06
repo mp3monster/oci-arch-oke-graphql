@@ -131,16 +131,16 @@ The URL for the GraphQL endpoint to be obtained will be the *EXTERNAL-IP* value 
 
 #### Route 1
 
-| Attribute                                   | Value                  |
-| ------------------------------------------- | ---------------------- |
-| Path                                        | /graphql               |
-| Methods                                     | POST                   |
-| Type                                        | HTTP                   |
-| URL                                         | svc                    |
-| Body                                        | {"test":"response ok"} |
-| Connection establishment timeout in seconds | -- no value set--      |
-| Reading response timeout in seconds         | -- no value set --     |
-| Disable SSL verification                    | set                    |
+| Attribute                                   | Value              |
+| ------------------------------------------- | ------------------ |
+| Path                                        | /graphql           |
+| Methods                                     | POST               |
+| Type                                        | HTTP               |
+| URL                                         | svc                |
+| Body                                        |                    |
+| Connection establishment timeout in seconds | -- no value set--  |
+| Reading response timeout in seconds         | -- no value set -- |
+| Disable SSL verification                    | set                |
 
 
 
