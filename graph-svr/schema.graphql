@@ -89,7 +89,7 @@
     eventType:String,          
     title:String
     geometry:GeometryInput,
-    id:ID               # Without this the record is assumed to be a creation
+    id:String               # Without this the record is assumed to be a creation
   }
 
   type ProviderType {
@@ -129,7 +129,7 @@
   }
 
   type Query {
-    event(id:ID):EventType
+    event(id:String):EventType
     events(tsunami:Boolean, 
             alert:String, 
             status:String,

@@ -8,17 +8,21 @@ export default class EventsInternalAPI extends RESTDataSource {
   constructor() {
     super();
     let config = JSON.parse(fs.readFileSync('./config.json'));
-    this.baseURL = config['event-svc-base'];
+    this.baseURL = 'http://' + config['event-svc-base'];
+    console.log("Events REST Data Source:"+this.baseURL);
   }
 
   // GET
   async getEvent(id) {
+    console.log("getEvent (%s) directing to %s",id,this.baseURL);
     request.params.set('id', id);
     return this.get(`event`);
   }
 
   // GET
   async getEvents(tsunami, alert, status, eventType, minTime, maxTime, minMag, maxMag, nameContains) {
+    console.log("getEvents - params %s %s %s %s %s %s %s %s %s", tsunami, alert, status, eventType, minTime, maxTime, minMag, maxMag, nameContains);
+
     if (tsunami != null) { request.params.set('tsunami', tsunami); }
     if (alert != null) { request.params.set('alert', alert); }
     if (status != null) { request.params.set('status', status); }

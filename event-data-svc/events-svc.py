@@ -13,6 +13,8 @@ import os
 from flask import Flask, request, Response
 import configparser
 from decimal import *
+import logging
+import sys
 
 
 app = Flask(__name__)
@@ -55,19 +57,17 @@ def cleansedata(eventdata):
             eventdata.remove(event)
         else:
             event.pop("type")
-    print(messages)
+    logger.debug(messages)
 
     return eventdata
 
 
-@ app.route('/test/')
-@ app.route('/test')
+@ app.route('/test', strict_slashes=False)
 def test():
     return "confirming, test ok"
 
 
-@ app.route('/health/')
-@ app.route('/health')
+@ app.route('/health', strict_slashes=False)
 def health():
     status = dict()
 
@@ -76,12 +76,11 @@ def health():
     status['config'] = config
 
     json = json.dumps(status, indent=2, sort_keys=False)
-    print(json)
+    logger.debug(json)
     return json
 
 
-@app.route('/metadata')
-@app.route('/metadata/')
+@app.route('/metadata', strict_slashes=False)
 def getmetadata():
     return metadata
 
@@ -113,6 +112,8 @@ def booleanelement(properties, testvalue, attributename):
         if (testvalue == "false"):
             testvalue = "0"
 
+        logger.debug("valuating %s against %s for %s",
+                     attributename, testvalue, str(value))
         result = (testvalue == value)
 
     return result
@@ -131,7 +132,8 @@ def numericelement(properties, testvalue, attributename):
             testvalue = Decimal(testvalue)
 
         except ValueError:
-            print("Value not numeric " + str(value) + " or " + testvalue)
+            logger.debug("Value not numeric " +
+                         str(value) + " or " + testvalue)
 
         if attributename.startswith("min"):
             result = (value <= testvalue)
@@ -162,30 +164,37 @@ criteriamap = {"mintime": numericelement,
                "alert": stringelement, }
 
 
-@app.route('/event', methods=['GET'])
+@app.route('/event', methods=['GET'], strict_slashes=False)
 def getevent():
-    matchedevents = list()
+    logger.debug("Get event - args are %s", str(request.args))
+    response_code = 200
+
+    matched_event = ""
     event_id = ''
     if (request.args != None) and (len(request.args) > 0) and "id" in request.args:
-        # special case
-        event_id = request.args['id']
+        event_id = request.args.get('id')
         for event in eventdata:
             if (event['id'] != None) and (event['id'] == event_id):
-                matchedevents.append(event)
+                matched_event = str(event)
                 break
 
     else:
-        print("No search criteria set returning everything")
+        logger.debug("No id set - returning 204 with empty string")
+        response_code = 204
 
     responsestr = ""
-    if len(matchedevents) > 0:
-        responsestr = json.dumps(matchedevents, indent=2, sort_keys=True)
+    if len(matched_event) > 0:
+        matched_event = "event: " + matched_event
+        responsestr = json.dumps(matched_event, indent=2, sort_keys=True)
 
-    return responsestr
+    logger.debug(responsestr)
+    return responsestr, response_code
 
 
-@app.route('/event', methods=['DELETE'])
+@app.route('/event', methods=['DELETE'], strict_slashes=False)
 def deleteevent():
+    logger.debug("delete event - args are %s", str(request.args))
+
     response = Response(status=410)
     event_id = ''
     if (request.args != None) and (len(request.args) > 0) and "id" in request.args:
@@ -197,8 +206,9 @@ def deleteevent():
                 response = Response(status=200)
                 break
     else:
-        print("No delete criteria set returning everything")
+        logger.debug("No delete criteria set returning everything")
 
+    logger.debug(response)
     return response
 
 
@@ -216,12 +226,13 @@ def createsearchcriteria(args):
     if (args != None) and (len(args) > 0):
         # build the search criteria
         for arg in args:
-            #print("arg evaluating " + arg)
+            #logger.debug("arg evaluating " + arg)
             if searchcriteria == None:
                 searchcriteria = dict()
 
             searchcriteria[arg] = args.get(arg)
 
+    logger.debug("Search criteria is %s", str(searchcriteria))
     return searchcriteria
 
 
@@ -232,16 +243,18 @@ def applycriteria(searchcriteria, properties):
             matched = criteriamap[criteria](
                 properties, searchcriteria.get(criteria), criteria)
         else:
-            print("unknown search criteria - " + criteria)
+            logger.warning("unknown search criteria - " + criteria)
         if matched == False:
             break
             # didn't fail any of the search criteria
+
     return matched
 
 
-@app.route('/events/', methods=['GET'])
-@app.route('/events', methods=['GET'])
+@app.route('/events', methods=['GET'], strict_slashes=False)
 def getevents():
+    logger.debug("Get events - args are %s", str(request.args))
+
     matchedevents = list()
     searchcriteria = createsearchcriteria(request.args)
 
@@ -250,25 +263,44 @@ def getevents():
         for event in eventdata:
             properties = event.get('properties')
             if (applycriteria(searchcriteria, properties)):
-                print("match for " + str(event))
+                logger.debug("match for " + str(event))
                 matchedevents.append(event)
 
     else:
-        print("No search criteria set returning everything")
+        logger.debug("No search criteria set returning everything")
         matchedevents = eventdata
 
-    return matchlisttostring(matchedevents)
+    logger.debug("Get events found %d matches", len(matchedevents))
+    responsestr = matchlisttostring(matchedevents)
+    logger.debug(responsestr)
+
+    return responsestr
 
 
-@ app.route('/raw/')
+@ app.route('/raw', methods=['GET'], strict_slashes=False)
 def raw():
     pretty_str = json.dumps(eventdata, indent=2, sort_keys=True)
-    print(pretty_str)
-    print("Record count="+str(len(eventdata)))
+    logger.debug(pretty_str)
+    logger.debug("Record count="+str(len(eventdata)))
     return (pretty_str)
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    logger.warning("Error handler caught request : %s", str(request.data))
+    return 'URL not found', 404
 
 # start the app up
 
+
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 config = getconfig()
 os.environ['host'] = config.get('server', 'host')
@@ -280,10 +312,9 @@ metadata = None
 pretty_events_str = json.dumps(eventdata, indent=2, sort_keys=True)
 pretty_metadata_str = json.dumps(metadata, indent=2, sort_keys=True)
 
-print("Cleansing data:" + pretty_events_str)
-print("==========")
-print("Cleansing metadata data:" + pretty_metadata_str)
-
+logger.debug("Cleansing data:" + pretty_events_str)
+logger.debug("==========")
+logger.debug("Cleansing metadata data:" + pretty_metadata_str)
 
 if __name__ == '__main__':
     app.run(debug=config.getint('server', 'debug'),

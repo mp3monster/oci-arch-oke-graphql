@@ -8,6 +8,9 @@ from flask import Flask, request, Response
 import configparser
 import json
 import os
+import logging
+import sys
+
 
 app = Flask(__name__)
 
@@ -32,7 +35,7 @@ def loaddata(config):
 def prep_provider_alternates(providerdata):
     updatedprovider = providerdata.copy()
 
-    print("provider count=" + str(len(providerdata)))
+    logger.debug("provider count=" + str(len(providerdata)))
     for provider in providerdata:
         if 'aka' in provider:
             aka_list = provider['aka']
@@ -40,17 +43,17 @@ def prep_provider_alternates(providerdata):
                 newprovider = provider
                 newprovider['code'] = aka
                 updatedprovider.append(newprovider)
-                print(newprovider)
+                logger.debug(newprovider)
 
-    print("UPDATED provider count=" + str(len(updatedprovider)))
+    logger.debug("UPDATED provider count=" + str(len(updatedprovider)))
 
     return updatedprovider
 
 
 def get_provider_by_id(id):
-    print("looking for " + id)
+    logger.debug("looking for " + id)
     for provider in providerdata:
-        print(provider)
+        logger.debug(provider)
         code = provider.get('code')
         if (code.lower() == id.lower()):
             return provider
@@ -58,14 +61,14 @@ def get_provider_by_id(id):
 
 
 def get_provider_by_name(name):
-    print("looking for " + name)
+    logger.debug("looking for " + name)
     for providerid in providerdata:
         if (providerdata[providerid].lower().contains(name.lower())):
             return providerdata[providerid]
     return None
 
 
-@ app.route('/provider', methods=['GET'])
+@ app.route('/provider', methods=['GET'], strict_slashes=False)
 def get_provider():
     ref_element = None
     resultstr = ""
@@ -85,7 +88,7 @@ def get_provider():
     return resultstr
 
 
-@ app.route('/provider', methods=['DELETE'])
+@ app.route('/provider', methods=['DELETE'], strict_slashes=False)
 def delete_provider():
     response = Response(status=410)
     request_id = None
@@ -105,31 +108,44 @@ def delete_provider():
     return response
 
 
-@ app.route('/test')
-@ app.route('/test/')
+@ app.route('/test/',  methods=['GET'], strict_slashes=False)
 def test():
     return "confirming, test ok"
 
 
-@ app.route('/health')
-@ app.route('/health/')
+@ app.route('/health/',  methods=['GET'], strict_slashes=False)
 def health():
     status = dict()
     status['provider-data'] = len(providerdata)
     status['config'] = config
 
     json = json.dumps(status, indent=2, sort_keys=False)
-    print(json)
+    logger.debug(json)
     return json
 
+
+@app.errorhandler(404)
+def page_not_found(error):
+    logger.warning("Error handler caught request : %s", str(request.data))
+    return 'URL not found', 404
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 config = getconfig()
 os.environ['host'] = config.get('server', 'host')
 os.environ['port'] = config.get('server', 'port')
 
-print("debug ==>" + str(config.get('server', 'debug')))
-print("port ==>" + str(config.getint('server', 'port')))
-print("host ==>" + config.get('server', 'host'))
+logger.debug("debug ==>" + str(config.get('server', 'debug')))
+logger.debug("port ==>" + str(config.getint('server', 'port')))
+logger.debug("host ==>" + config.get('server', 'host'))
 
 providerdata = loaddata(config)
 providerdata = prep_provider_alternates(providerdata)
