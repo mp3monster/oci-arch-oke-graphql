@@ -1,34 +1,60 @@
 // Copyright(c) 2022, Oracle and / or its affiliates.
 // All rights reserved. The Universal Permissive License(UPL), Version 1.0 as shown at http: // oss.oracle.com/licenses/upl
+// useful link https://www.apollographql.com/tutorials/lift-off-part2/the-shape-of-a-resolver
 
 export const resolvers = {
   Query: {
-    event: async (_, { id }, { dataSources }) => {
-      console.log("resolvers - Query event id %s", id);
-      return await dataSources.eventsInternalAPI.getEvent(id);
+    event: async (_parent, { id }, { dataSources }, _info)  => {
+      console.log("resolvers - Query event id");
+      // console.log(parent);
+      // console.log(args);
+      // console.log(context);
+      // console.log(info);
+      let apiCall = await dataSources.eventsInternalAPI.getEvent(id);
+      console.log(apiCall);
+      return apiCall;
+      // return {};
     },
-    events: async (_, { tsunami, alert, status, eventType, minTime, maxTime, minMag, maxMag, nameContains }, { dataSources }) => {
-        console.log("resolvers", "Query events", tsunami, alert, status, eventType, minTime, maxTime, minMag, maxMag, nameContains);
-        return await dataSources.eventsInternalAPI.getEvents(tsunami, alert, status, eventType, minTime, maxTime, minMag, maxMag, nameContains);
+
+    // if there are issues with the resolvers use this to test server config is ok
+    help() {
+      return "help me";
     },
-    provider: async (_, { id }, { dataSources }) => {
-        console.log("resolvers - get provider %s", id);
-        return await dataSources.providerInternalAPI.getProvider(id);
+
+    latestEvent: async (_parent, _args, { dataSources }, _info) => {
+      console.log("resolvers - get latest event");
+      return dataSources.eventsInternalAPI.getLatestEvent();
     },
-    providers: async (_, __, { dataSources }) => {
-        console.log("resolvers get providers");
-        return await dataSources.providerInternalAPI.getProviders();
-    },   
+
+    events: async (_parent, { tsunami, alert, status, eventType, minTime, maxTime, minMag, maxMag, nameContains }, { dataSources }, _info) => {
+      console.log( "Query events - tsunami=%s, alert=%s, status=%s, eventType=%s, minTime=%s, maxTime=%s, minMag=%s, maxMag=%s, nameContains=%s", tsunami, alert, status, eventType, minTime, maxTime, minMag, maxMag, nameContains);
+      return dataSources.eventsInternalAPI.getEvents(tsunami, alert, status, eventType, minTime, maxTime, minMag, maxMag, nameContains);
+    },
+
+    provider: async (_parent, { id }, { dataSources }, _info) => {
+      console.log("resolvers - get provider %s", id);
+      return dataSources.providerInternalAPI.getProvider(id);
+    },
+
+    providers: async (_parent, _args, { dataSources }, _info) => {
+      console.log("resolvers get providers");
+      return dataSources.providerInternalAPI.getProviders();
+    }   
 },
   
 Mutation: {
-  changeEvent: async (_, { event }, { dataSources }) => {
+  changeEvent: async (_parent, { event }, { dataSources }, _info) => {
     console.log("mutator Change event to %s", event);
-    return await dataSources.eventsInternalAPI.changeEvent(event);
+    return dataSources.eventsInternalAPI.changeEvent(event);
   },
-  removeProvider: async (_, { code }, { dataSources }) => {
-      console.log("mutator remove provider %s", id);
-      return await dataSources.eventsInternalAPI.deleteProvider(code);
-    },
+    deleteEvent: async (_parent, { id }, { dataSources }, _info) => {
+    console.log("mutator Change event to %s", id);
+    return dataSources.eventsInternalAPI.deleteEvent(id);
+  },
+  deleteProvider: async (_parent, { code }, { dataSources }, _info) => {
+      console.log("mutator remove provider %s", code);
+      return dataSources.providerInternalAPI.deleteProvider(code);
+    }
   },
 };
+
