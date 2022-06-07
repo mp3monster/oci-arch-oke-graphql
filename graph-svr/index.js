@@ -1,25 +1,26 @@
 // Copyright(c) 2022, Oracle and / or its affiliates.
 // All rights reserved. The Universal Permissive License(UPL), Version 1.0 as shown at http: // oss.oracle.com/licenses/upl
 
-import { loadSchemaSync } from '@graphql-tools/load';
+import { loadFilesSync } from '@graphql-tools/load-files';
 import EventsInternalAPI from './EventsInternalAPI.js';
 import { ApolloServer } from 'apollo-server';
-import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import { resolvers } from './resolvers.js';
 import ProviderInternalAPI from './ProviderInternalAPI.js';
 
-// load from a single schema file
-const schema = loadSchemaSync('./schema.graphql', {loaders: [new GraphQLFileLoader()]});
+
 
 const server = new ApolloServer({
-  schema,
+  debug : true,
+  typeDefs: loadFilesSync('./schema.graphql'),
   resolvers,
   dataSources: () => {
-    return { eventsAPI: new EventsInternalAPI(), providerInternalAPI: new ProviderInternalAPI() }
+    return {
+      eventsAPI: new EventsInternalAPI(),
+      providerInternalAPI: new ProviderInternalAPI()
+    };
   }});
-
 
 // The `listen` method launches a web server.
 server.listen({ port: 80,}).then(({ url }) => {
-  console.log(`🚀  Server ready at ${url}`);
+  console.log(`Server ready at ${url}`);
 });
