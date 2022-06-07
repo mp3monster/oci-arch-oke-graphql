@@ -32,3 +32,10 @@ Note: This only works because we have not applied strong security settings to th
 ### Invoking the GraphQL Server
 
 We can test the GraphQL server both internally and externally. This can be done by executing the command curl -f `https:://ServerIP/graphql?query=%7B__typename%7D` with the ServerIP being the CLUSTER-IP or EXTERNAL-IP depending on whether you're exercising the command within the cluster as illustrated for the resolvers, or externally.
+
+To help exercise the GraphQL server as this is the public API service we have provided a [Postman](https://www.postman.com/) Collection that can be used. is in the Test folder of the repository. Note before executing any of the invocations the following actions will be need to be done:
+
+- server IP will need to be amended to reflect your local deployment.
+- set the value for the auth-token so the call will be tolerated by the API Gateway
+
+Each of the calls is annotated within the Postman Collection.
