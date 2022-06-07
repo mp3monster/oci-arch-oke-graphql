@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@graphql-tools/graphql-file-loader": "^7.3.11",
-    "@graphql-tools/load": "^7.5.10",
+    "@graphql-tools/load-files": "^6.5.4",
     "@graphql-tools/schema": "^8.3.10",
     "@graphql-yoga/node": "^2.4.1",
     "apollo-datasource-rest": "^3.5.2",
