@@ -15,7 +15,7 @@ const server = new ApolloServer({
   resolvers,
   dataSources: () => {
     return {
-      eventsAPI: new EventsInternalAPI(),
+      eventsInternalAPI: new EventsInternalAPI(),
       providerInternalAPI: new ProviderInternalAPI()
     };
   }});
