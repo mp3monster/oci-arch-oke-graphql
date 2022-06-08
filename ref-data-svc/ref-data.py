@@ -50,47 +50,48 @@ def prep_provider_alternates(providerdata):
     return updatedprovider
 
 
-def get_provider_by_id(id):
-    logger.debug("looking for " + id)
+def get_provider_by(id, element):
+    logger.debug("looking for %s in element %s", id, element)
+    identified_provider = None
+    lower_id = id.lower()
+
     for provider in providerdata:
-        logger.debug(provider)
-        code = provider.get('code')
-        if (code.lower() == id.lower()):
-            return provider
-    return None
+        value = provider.get(element)
+        if (value.lower() == lower_id):
+            identified_provider = provider
+            break
 
-
-def get_provider_by_name(name):
-    logger.debug("looking for " + name)
-    for providerid in providerdata:
-        if (providerdata[providerid].lower().contains(name.lower())):
-            return providerdata[providerid]
-    return None
+    return identified_provider
 
 
 @ app.route('/provider', methods=['GET'], strict_slashes=False)
 def get_provider():
     ref_element = None
-    resultstr = ""
+    responsestr = None
+    response_code = 404
 
     if (request.args != None) and (len(request.args) > 0):
         for arg in request.args:
-            if (arg == "id"):
-                ref_element = get_provider_by_id(request.args['id'])
+            if (arg == "code"):
+                ref_element = get_provider_by(request.args['code'], 'code')
             elif (arg == "name"):
-                ref_element = get_provider_by_name(request.args['name'])
-    else:
-        ref_element = providerdata
+                ref_element = get_provider_by(
+                    request.args['name'], 'name')
 
     if (ref_element != None):
-        resultstr = json.dumps(ref_element, indent=2, sort_keys=False)
+        responsestr = json.dumps(ref_element, indent=2, sort_keys=False)
+        response_code = 200
 
-    return resultstr
+    response = Response(response=responsestr,
+                        status=response_code,
+                        content_type="application/json")
+    return response
 
 
 @ app.route('/provider', methods=['DELETE'], strict_slashes=False)
 def delete_provider():
-    response = Response(status=410)
+    response_code = 410
+
     request_id = None
     if (request.args != None) and (len(request.args) > 0):
         request_id = request.args['id']
@@ -100,11 +101,15 @@ def delete_provider():
             provider = providerdata[provider_id]
             if (provider['code'].lower() == id):
                 providerdata.remove(provider_id)
-                response = Response(status=200)
+                response_code = 200
             elif 'aka' in provider:
                 aka_list = provider['aka']
                 if id in aka_list:
                     aka_list.remove(id)
+
+    response = Response(response=None,
+                        status=response_code,
+                        content_type="application/json")
     return response
 
 
@@ -139,6 +144,8 @@ formatter = logging.Formatter(
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+logger.debug("========== Preparing ==========")
+
 config = getconfig()
 os.environ['host'] = config.get('server', 'host')
 os.environ['port'] = config.get('server', 'port')
@@ -149,6 +156,8 @@ logger.debug("host ==>" + config.get('server', 'host'))
 
 providerdata = loaddata(config)
 providerdata = prep_provider_alternates(providerdata)
+
+logger.debug("========== ready ==========")
 
 if __name__ == '__main__':
     app.run(debug=config.getint('server', 'debug'),
