@@ -37,8 +37,8 @@ Copyright(c) 2022, Oracle and / or its affiliates.
   type Event  {
     magnitude: String    # string as we cant define a decimal
     place: String        # Nearest city or Flinn-Engdahl (F-E) location definition
-    time: Int            # Recorded time for the event
-    updated : Int        # Time in milliseconds of last update on this event
+    time: String         # Recorded date and time for the event in form of Time in d/m/y h:m:s format
+    updated : String     # Time in d/m/y h:m:s format
     tz : Int             # TimeZone offset from UTC [-1200, +1200]
     url:String           # link to the USGS event record
     detail:String
