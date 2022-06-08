@@ -13,9 +13,12 @@ docker build -t %name% .
 docker tag %name%:latest %4.ocir.io/%3/%name%:latest
 
 rem acces OCIR and upload the container
+echo logging in %3/identitycloudservice/%1 -p %2  %4.ocir.io
 docker login -u %3/identitycloudservice/%1 -p %2  %4.ocir.io
+
+echo pushing %4.ocir.io/%3/%name%:latest
 docker push %4.ocir.io/%3/%name%:latest
 
 rem deploy the container and then the service wrapper
 kubectl apply -f ./deployment.yaml
-kubectl apply -f ./%name%.yaml
+rem kubectl apply -f ./%name%.yaml
