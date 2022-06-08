@@ -10,12 +10,16 @@
 from importlib.metadata import metadata
 import json
 import os
+from sqlite3 import Timestamp
 from flask import Flask, request, Response
 import configparser
 from decimal import *
 import logging
 import sys
+from datetime import datetime, date, time
 
+
+DT_FORMAT = "%d/%m/%Y, %H:%M:%S"
 
 app = Flask(__name__)
 
@@ -49,6 +53,16 @@ def extractmetadata(eventdata):
     return None
 
 
+def convert_time(epoch_time):
+    datestr = None
+    if (epoch_time != None):
+        dateobj = datetime.fromtimestamp(epoch_time/1000)
+        datestr = dateobj.strftime(DT_FORMAT)
+        logger.debug("epoch time %s is %s", str(epoch_time), datestr)
+
+    return datestr
+
+
 def cleansedata(eventdata):
     messages = "cleansing data -\n"
     cleandata = []
@@ -60,6 +74,11 @@ def cleansedata(eventdata):
             properties = event["properties"]
             properties["id"] = event["id"]
             properties["geometry"] = event["geometry"]
+
+            # convert milliseconds from epoch to a string representation
+            properties['time'] = convert_time(properties["time"])
+            properties['updated'] = convert_time(properties["updated"])
+
             cleandata.append(properties)
         else:
             messages += "Unexpected event type " + event["type"] + "\n"
@@ -87,7 +106,7 @@ def health():
     return json
 
 
-@app.route('/metadata', strict_slashes=False)
+@ app.route('/metadata', strict_slashes=False)
 def getmetadata():
     return metadata
 
@@ -181,9 +200,8 @@ def getevent():
     if (request.args != None) and (len(request.args) > 0) and "id" in request.args:
         event_id = request.args.get('id')
         for event in eventdata:
-            logger.debug("comparing %s and %s", event_id, event['id'])
             if (event['id'] != None) and (event['id'] == event_id):
-                matched_event = str(event)
+                matched_event = event
                 response_code = 200
                 break
 
@@ -193,8 +211,8 @@ def getevent():
 
     responsestr = ""
     if (matched_event != None) and len(matched_event) > 0:
-        matched_event = "{'event': " + matched_event+"}"
         responsestr = json.dumps(matched_event, indent=2, sort_keys=True)
+
     else:
         logger.info("No Id match for " + event_id)
         responsestr = ''
@@ -202,7 +220,6 @@ def getevent():
     response = Response(response=responsestr,
                         status=response_code,
                         content_type="application/json")
-    logger.debug("Returning response:" + responsestr)
     logger.debug("Returning response object:" + str(response))
 
     return response
@@ -211,7 +228,6 @@ def getevent():
 @app.route('/event', methods=['DELETE'], strict_slashes=False)
 def deleteevent():
     logger.debug("delete event - args are %s", str(request.args))
-    response = Response()
 
     response_code = 410
     event_id = ''
@@ -221,13 +237,15 @@ def deleteevent():
         for event in eventdata:
             if (event['id'] != None) and (event['id'] == event_id):
                 eventdata.remove(event)
-                response_code = 200
+                response_code = 202
                 break
     else:
         logger.debug("No delete criteria set returning everything")
 
-    logger.debug(response)
-    return response, response_code
+    response = Response(response=None,
+                        status=response_code,
+                        content_type="application/json")
+    return response
 
 
 def matchlisttostring(matchedevents):
@@ -244,7 +262,7 @@ def createsearchcriteria(args):
     if (args != None) and (len(args) > 0):
         # build the search criteria
         for arg in args:
-            #logger.debug("arg evaluating " + arg)
+            # logger.debug("arg evaluating " + arg)
             if searchcriteria == None:
                 searchcriteria = dict()
 
@@ -272,6 +290,7 @@ def applycriteria(searchcriteria, properties):
 @app.route('/events', methods=['GET'], strict_slashes=False)
 def getevents():
     logger.debug("Get events - args are %s", str(request.args))
+    response_code = 200
 
     matchedevents = list()
     searchcriteria = createsearchcriteria(request.args)
@@ -289,29 +308,40 @@ def getevents():
 
     logger.debug("Get events found %d matches", len(matchedevents))
     responsestr = matchlisttostring(matchedevents)
-    logger.debug(responsestr)
+    logger.debug("Get events returning %s", responsestr)
 
-    return responsestr
+    return Response(response=responsestr,
+                    status=response_code,
+                    content_type="application/json")
 
 
 @app.route('/latestEvent', methods=['GET'], strict_slashes=False)
 def get_latest_event():
     logger.debug("Get latest event ")
 
+    response_code = 404
     latest_event = None
     latest_event_dtg = None
 
     for event in eventdata:
-        current_event_dtg = event.get('time')
-        if (current_event_dtg != None):
+        current_event_dtg_str = event.get('time')
+
+        if (current_event_dtg_str != None):
+            current_event_dtg = datetime.strptime(
+                current_event_dtg_str, DT_FORMAT)
+
             if (latest_event_dtg == None) or (current_event_dtg > latest_event_dtg):
                 latest_event_dtg = current_event_dtg
                 latest_event = event
+                response_code = 200
 
-    responsestr = str(latest_event)
+    responsestr = json.dumps(latest_event, indent=2, sort_keys=True)
     logger.debug(responsestr)
 
-    return (responsestr)
+    response = Response(response=responsestr,
+                        status=response_code,
+                        content_type="application/json")
+    return (response)
 
 
 @ app.route('/raw', methods=['GET'], strict_slashes=False)
@@ -322,7 +352,7 @@ def raw():
     return (pretty_str)
 
 
-@app.errorhandler(404)
+@ app.errorhandler(404)
 def page_not_found(error):
     logger.warning("Error handler caught request : %s", str(request.data))
     return 'URL not found', 404
@@ -346,12 +376,13 @@ os.environ['port'] = config.get('server', 'port')
 eventdata = loaddata(config)
 metadata = extractmetadata(eventdata)
 eventdata = cleansedata(eventdata)
-metadata = None
 pretty_events_str = json.dumps(eventdata, indent=2, sort_keys=True)
+pretty_metadata_str = json.dumps(metadata, indent=2, sort_keys=True)
 
-logger.debug("Cleansing data:" + pretty_events_str)
+
+logger.debug("Cleansed data:" + pretty_events_str)
 logger.debug("==========")
-logger.debug("Cleansing metadata data:" + str(metadata))
+logger.debug("metadata data:" + pretty_metadata_str)
 logger.debug("========== ready ==========")
 
 if __name__ == '__main__':
