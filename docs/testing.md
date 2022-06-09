@@ -44,6 +44,6 @@ Each of the calls is annotated within the Postman Collection.
 
 ### Test Data
 
-The data provided comes in two sizes. Each is backend service has its own data deployed in the container. The service's .cfg file (e.g. event-svc.cfg) dictates which data file to use. So we could easily override with a ConfigMap to add newer and bigger data sets.
+The data provided comes in two sizes. Each is backend service has its own data deployed in the container. The service's *.cfg* file (e.g. *event-svc.cfg*) dictates which data file to use. So we could easily override with a ConfigMap to add newer and bigger data sets.
 
 Each service has a small data set and a larger data set. For example in the event-svc these are named *events-small.json* and *events.json*
