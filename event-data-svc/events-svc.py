@@ -231,6 +231,7 @@ def deleteevent():
 
     response_code = 410
     event_id = ''
+    logger.debug("Pre-deletion count - %d", len(eventdata))
     if (request.args != None) and (len(request.args) > 0) and "id" in request.args:
         # special case
         event_id = request.args['id']
@@ -242,7 +243,10 @@ def deleteevent():
     else:
         logger.debug("No delete criteria set returning everything")
 
-    response = Response(response=None,
+    record_count = len(eventdata)
+    logger.debug("POST-deletion count - %d", record_count)
+
+    response = Response(response=json.dumps(record_count, indent=2),
                         status=response_code,
                         content_type="application/json")
     return response
