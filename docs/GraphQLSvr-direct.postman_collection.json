@@ -7,7 +7,98 @@
 	},
 	"item": [
 		{
+			"name": "GQLEventDataQuery",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "auth-token",
+						"value": "add-token",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query getEvent {\r\n    event(id: \"ak0225c24vhp\") {\r\n        place\r\n        time\r\n        eventType\r\n        id\r\n        title\r\n    }\r\n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "129.80.133.103",
+					"host": [
+						"129",
+						"80",
+						"133",
+						"103"
+					]
+				},
+				"description": "This queries for a single event and retrieves a subset of the attributes available."
+			},
+			"response": []
+		},
+		{
 			"name": "GQLRefDataQuery",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "auth-token",
+						"value": "add-token",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query{\r\n    provider(code: \"aae\") {\r\n        name\r\n    }\r\n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "129.80.99.223:80",
+					"host": [
+						"129",
+						"80",
+						"99",
+						"223"
+					],
+					"port": "80"
+				},
+				"description": "This queries for a single event and retrieves a subset of the attributes available."
+			},
+			"response": []
+		},
+		{
+			"name": "GQLLatestEventDataQuery",
 			"event": [
 				{
 					"listen": "test",
@@ -39,16 +130,58 @@
 					}
 				},
 				"url": {
-					"raw": "129.80.99.223:80",
+					"raw": "129.80.133.103",
 					"host": [
 						"129",
 						"80",
-						"99",
-						"223"
-					],
-					"port": "80"
+						"133",
+						"103"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GQLProviderDataQuery",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "auth-token",
+						"value": "add-token",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query {\r\n    provider(code: \"pnsn\") {\r\n        code\r\n        name\r\n    }\r\n}",
+						"variables": ""
+					}
 				},
-				"description": "This queries for a single event and retrieves a subset of the attributes available."
+				"url": {
+					"raw": "129.80.133.103",
+					"host": [
+						"129",
+						"80",
+						"133",
+						"103"
+					]
+				}
 			},
 			"response": []
 		}
