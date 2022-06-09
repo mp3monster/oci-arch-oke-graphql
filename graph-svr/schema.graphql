@@ -155,7 +155,7 @@ Copyright(c) 2022, Oracle and / or its affiliates.
 
  type Mutation {
     changeEvent (event:EventInput) :Event
-    deleteEvent(id:String) : Boolean  # as we're deleting, a successful delete should reflect an empty structure
+    deleteEvent(id:String) : Int  # as we're deleting, a successful delete will return a record count
  
-    deleteProvider (code:String) : Boolean
+    deleteProvider (code:String) : Int # return of a remaining record count
   }
