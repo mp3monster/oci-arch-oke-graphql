@@ -1,10 +1,9 @@
-# TITLE
+# OCI Architecture using OKE & GraphQL - Scalable implementation
 
 [![License: UPL](https://img.shields.io/badge/license-UPL-green)](https://img.shields.io/badge/license-UPL-green) [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=oracle-devrel_test)](https://sonarcloud.io/dashboard?id=oracle-devrel_test)
 
-## THIS IS A NEW, BLANK REPO THAT IS NOT READY FOR USE YET.  PLEASE CHECK BACK SOON!
-
 ## Introduction
+
 This Reference Architecture has been implemented to achieve the following:
 
 - Illustrate  how GraphQL can be implemented to be highly scalable (many example implementations put the new logic within the GraphQL Server here we adopt a scalable approach)
@@ -49,7 +48,7 @@ The environment setup can be done in several ways. To make life simple and easy 
 
 1. Create OKE by either - Creating the relevant environment can be done a couple of ways ...
 
-   1. Build on top of an existing RA such as XXXX.
+   1. Build on top of an existing RA such as https://github.com/oracle-devrel/terraform-oci-arch-oke.
    2. From scratch
       - If using the Quick Create Wizard, the key is to ensure that endpoints are public and the nodes are private
 
