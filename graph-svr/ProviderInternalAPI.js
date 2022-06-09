@@ -49,7 +49,7 @@ export default class ProviderInternalAPI extends RESTDataSource {
 
   // DELETE
   async deleteProvider(code) {
-        console.log("deleteProvider directing to %s",id, this.baseURL);
-    return this.delete();
+        console.log("deleteProvider directing to %s",code, this.baseURL);
+    return this.delete(`provider?code=${code}`);
   }
 }
