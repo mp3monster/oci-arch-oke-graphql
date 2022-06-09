@@ -88,26 +88,43 @@ def get_provider():
     return response
 
 
+def check_akas(aka_list, request_id):
+    # if we haven't got the specific provider let's ensure the entry
+    #  isn't being referenced in the aka
+    for aka_entry in aka_list:
+        aka_entry_lower = aka_entry.lower()
+        if request_id == aka_entry_lower:
+            aka_list.remove(aka_entry)
+            logger.debug("removed an aka entry")
+    return aka_list
+
+
 @ app.route('/provider', methods=['DELETE'], strict_slashes=False)
 def delete_provider():
     response_code = 410
-
     request_id = None
+
+    logger.debug("PRE-deletion count - %d", len(providerdata))
+
     if (request.args != None) and (len(request.args) > 0):
-        request_id = request.args['id']
+        request_id = request.args['code']
+        logger.debug(request_id)
 
     if (request_id != None):
-        for provider_id in providerdata:
-            provider = providerdata[provider_id]
-            if (provider['code'].lower() == id):
-                providerdata.remove(provider_id)
-                response_code = 200
-            elif 'aka' in provider:
-                aka_list = provider['aka']
-                if id in aka_list:
-                    aka_list.remove(id)
+        request_id = request_id.lower()
 
-    response = Response(response=None,
+        for provider_entry in providerdata:
+            if (provider_entry['code'].lower() == request_id):
+                providerdata.remove(provider_entry)
+                response_code = 200
+            elif 'aka' in provider_entry:
+                provider_entry['aka'] = check_akas(
+                    provider_entry['aka'], request_id)
+
+    record_count = len(providerdata)
+    logger.debug("POST-deletion count - %d", record_count)
+
+    response = Response(response=json.dumps(record_count, indent=2),
                         status=response_code,
                         content_type="application/json")
     return response
