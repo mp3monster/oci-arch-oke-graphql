@@ -18,6 +18,12 @@ export default class ProviderInternalAPI extends RESTDataSource {
     return this.get(`provider?code=${code}`);
   }
 
+    // GET
+  async getProviders(codes) {
+    console.log("getProviders (%s) directing to %s",codes,this.baseURL);
+    return this.get(`providers?codes=${codes}`);
+  }
+
 
     // build up the params part of the url prefixing as appropriate
   addParam(params, name, value)
@@ -36,13 +42,13 @@ export default class ProviderInternalAPI extends RESTDataSource {
   }
 
   // GET
-  async getProviders(code, alias, name) {
+  async getFindProviders(code, alias, name) {
     console.log("getProviders directing to %s", this.baseURL);
     
     let params = '';
-    if (code != null) { params = addParam(params, 'code', code); }
-    if (alias != null) { params = addParam(params, 'alias', alias); }
-    if (name != null) { params = addParam(params, 'name', name); }
+    if (code != null) { params = this.addParam(params, 'code', code); }
+    if (alias != null) { params = this.addParam(params, 'alias', alias); }
+    if (name != null) { params = this.addParam(params, 'name', name); }
     
     return this.get(`providers${params}`);
   }

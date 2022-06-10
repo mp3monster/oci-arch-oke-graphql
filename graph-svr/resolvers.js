@@ -2,6 +2,8 @@
 // All rights reserved. The Universal Permissive License(UPL), Version 1.0 as shown at http: // oss.oracle.com/licenses/upl
 // useful link https://www.apollographql.com/tutorials/lift-off-part2/the-shape-of-a-resolver
 
+import { useLogger } from "@graphql-yoga/node";
+
 // if you don't want the service writing any logs - set this  to false
 const log = true;
 
@@ -48,28 +50,38 @@ export const resolvers = {
       return responseValue;
     },
 
-    providers: async (_parent, _args, { dataSources }, _info) => {
-      if (log) { console.log("resolvers get providers"); }
-      let responseValue = await dataSources.providerInternalAPI.getProviders();
+    findProvider: async (_parent, {code, alias, name}, { dataSources }, _info) => {
+      if (log) { console.log(`resolvers get providers using ${code}, ${alias}, ${name}`); }
+      let responseValue = await dataSources.providerInternalAPI.findProvider(code, alias, name);
       if (log) { console.log(`Get providers returned: \n ${responseValue}`); }
 
       return responseValue;      
-    }   
-},
+    },
+ },
   
 Mutation: {
-  changeEvent: async (_parent, { event }, { dataSources }, _info) => {
+    changeEvent: async (_parent, { event }, { dataSources }, _info) => {
     if (log) { console.log("mutator Change event to %s", event); }
-    return dataSources.eventsInternalAPI.changeEvent(event);
-  },
+    let responseValue = await dataSources.eventsInternalAPI.changeEvent(event);
+    return responseValue;
+    },
     deleteEvent: async (_parent, { id }, { dataSources }, _info) => {
-    if (log) { console.log("mutator Change event to %s", id); }
-    return dataSources.eventsInternalAPI.deleteEvent(id);
+      if (log) { console.log("mutator Change event to %s", id); }
+      let responseValue = await dataSources.eventsInternalAPI.deleteEvent(id);
+      return responseValue;
+    },
+    deleteProvider: async (_parent, { code }, { dataSources }, _info) => {
+      if (log) { console.log("mutator remove provider %s", code); }
+      let responseValue = await dataSources.providerInternalAPI.deleteProvider(code);
+      return responseValue;
+      }
   },
-  deleteProvider: async (_parent, { code }, { dataSources }, _info) => {
-    if (log) { console.log("mutator remove provider %s", code); }
-      return dataSources.providerInternalAPI.deleteProvider(code);
+  Event: {
+    providers: (event, args, { dataSources }, info) => {
+      if (log) { console.log(`going to locate ${event.sources}`) }
+      let responseValue = dataSources.providerInternalAPI.getProviders(event.sources);
+      return responseValue;
     }
-  },
+}
 };
 
