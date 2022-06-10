@@ -11,6 +11,12 @@ import os
 import logging
 import sys
 
+JSON_TYPE = "application/json"
+GET = 'GET'
+DELETE = 'DELETE'
+CODE = 'code'
+NAME = "name"
+AKA = 'aka'
 
 app = Flask(__name__)
 
@@ -35,15 +41,15 @@ def loaddata(config):
 def prep_provider_alternates(providerdata):
     updatedprovider = providerdata.copy()
 
-    logger.debug("provider count=" + str(len(providerdata)))
+    logger.debug(
+        "provider count before setting up alternate replicas=" + str(len(providerdata)))
     for provider in providerdata:
-        if 'aka' in provider:
-            aka_list = provider['aka']
+        if AKA in provider:
+            aka_list = provider[AKA]
             for aka in aka_list:
-                newprovider = provider
-                newprovider['code'] = aka
+                newprovider = provider.copy()
+                newprovider[CODE] = aka
                 updatedprovider.append(newprovider)
-                logger.debug(newprovider)
 
     logger.debug("UPDATED provider count=" + str(len(updatedprovider)))
 
@@ -56,15 +62,65 @@ def get_provider_by(id, element):
     lower_id = id.lower()
 
     for provider in providerdata:
-        value = provider.get(element)
-        if (value.lower() == lower_id):
+        if (provider[element].lower() == lower_id):
             identified_provider = provider
             break
 
+    if (identified_provider == None):
+        logger.info("Couldn't locate %s", id)
     return identified_provider
 
 
-@ app.route('/provider', methods=['GET'], strict_slashes=False)
+def getCodeList(codes):
+    codes_tokens = codes.split(",")
+    codes_list = []
+    logger.debug("Code tokens=,%s", str(codes_tokens))
+
+    for token in codes_tokens:
+        token_stripped = None
+        if (token != None):
+            token_stripped = token.strip()
+
+        if (token_stripped != None) and (token_stripped != '') and (token_stripped != ','):
+            codes_list.append(token_stripped)
+
+    return codes_list
+
+
+@ app.route('/providers', methods=[GET], strict_slashes=False)
+def get_providers():
+    response_elements = []
+    responsestr = None
+    response_code = 404
+
+    logger.debug("Get providers for: %s", str(request.args))
+    if (request.args != None) and (len(request.args) > 0) and "codes" in request.args:
+        codes = getCodeList(request.args["codes"])
+        logger.debug("Locate record with codes: %s", str(codes))
+
+        if (codes != None):
+            for code in codes:
+                logger.debug("looking for %s", str(code))
+                response_element = get_provider_by(
+                    code, CODE)
+                if (response_element != None):
+                    response_elements.append(response_element)
+
+    # build the response string
+    logger.debug("Located: %s", str(response_elements))
+    if (len(response_elements) > 0):
+        responsestr = json.dumps(
+            response_elements, indent=2, sort_keys=False)
+        response_code = 200
+
+    logger.debug("get provides %s returning:\n%s", str(codes), str)
+    response = Response(response=responsestr,
+                        status=response_code,
+                        content_type=JSON_TYPE)
+    return response
+
+
+@ app.route('/provider', methods=[GET], strict_slashes=False)
 def get_provider():
     ref_element = None
     responsestr = None
@@ -72,11 +128,11 @@ def get_provider():
 
     if (request.args != None) and (len(request.args) > 0):
         for arg in request.args:
-            if (arg == "code"):
-                ref_element = get_provider_by(request.args['code'], 'code')
-            elif (arg == "name"):
+            if (arg == CODE):
+                ref_element = get_provider_by(request.args[CODE], CODE)
+            elif (arg == NAME):
                 ref_element = get_provider_by(
-                    request.args['name'], 'name')
+                    request.args[NAME], NAME)
 
     if (ref_element != None):
         responsestr = json.dumps(ref_element, indent=2, sort_keys=False)
@@ -84,7 +140,7 @@ def get_provider():
 
     response = Response(response=responsestr,
                         status=response_code,
-                        content_type="application/json")
+                        content_type=JSON_TYPE)
     return response
 
 
@@ -99,7 +155,7 @@ def check_akas(aka_list, request_id):
     return aka_list
 
 
-@ app.route('/provider', methods=['DELETE'], strict_slashes=False)
+@ app.route('/provider', methods=[DELETE], strict_slashes=False)
 def delete_provider():
     response_code = 410
     request_id = None
@@ -107,35 +163,35 @@ def delete_provider():
     logger.debug("PRE-deletion count - %d", len(providerdata))
 
     if (request.args != None) and (len(request.args) > 0):
-        request_id = request.args['code']
+        request_id = request.args[CODE]
         logger.debug(request_id)
 
     if (request_id != None):
         request_id = request_id.lower()
 
         for provider_entry in providerdata:
-            if (provider_entry['code'].lower() == request_id):
+            if (provider_entry[CODE].lower() == request_id):
                 providerdata.remove(provider_entry)
                 response_code = 200
-            elif 'aka' in provider_entry:
-                provider_entry['aka'] = check_akas(
-                    provider_entry['aka'], request_id)
+            elif AKA in provider_entry:
+                provider_entry[AKA] = check_akas(
+                    provider_entry[AKA], request_id)
 
     record_count = len(providerdata)
     logger.debug("POST-deletion count - %d", record_count)
 
     response = Response(response=json.dumps(record_count, indent=2),
                         status=response_code,
-                        content_type="application/json")
+                        content_type=JSON_TYPE)
     return response
 
 
-@ app.route('/test/',  methods=['GET'], strict_slashes=False)
+@ app.route('/test/',  methods=[GET], strict_slashes=False)
 def test():
     return "confirming, test ok"
 
 
-@ app.route('/health/',  methods=['GET'], strict_slashes=False)
+@ app.route('/health/',  methods=[GET], strict_slashes=False)
 def health():
     status = dict()
     status['provider-data'] = len(providerdata)
@@ -146,7 +202,7 @@ def health():
     return json
 
 
-@app.errorhandler(404)
+@ app.errorhandler(404)
 def page_not_found(error):
     logger.warning("Error handler caught request : %s", str(request.data))
     return 'URL not found', 404
