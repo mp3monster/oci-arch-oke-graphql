@@ -52,7 +52,8 @@ Copyright(c) 2022, Oracle and / or its affiliates.
     net:Provider         # ID of a data contributor. Identifies the network considered to be the preferred source of information
     code:String          # Unique identified from the event detection source(s)
     ids:String
-    sources:[Provider]
+    sources:String       # codes for a comma separated list of providers
+    providers : [Provider] # provider details based on the sources
     types:String         # A comma-separated list of product types associated to this event
     nst:Int              # count of the number of locations used to calculate the magnitude of an earthquake
     dmin:Float           # Horizontal distance from the epicenter to the nearest station (in degrees). 1 degree is approximately 111.2 kilometers
@@ -143,12 +144,13 @@ Copyright(c) 2022, Oracle and / or its affiliates.
             maxMag:Float
             nameContains:String):[Event]
 
+
     "Returns the latest known event"
     latestEvent :Event
     help: String
  
     provider(code:String):Provider
-    providers(code:String
+    findProvider(code:String
               alias:String
               name: String):[Provider]
   }
