@@ -22,3 +22,5 @@ docker push %4.ocir.io/%3/%name%:latest
 rem deploy the container and then the service wrapper
 kubectl apply -f ./deployment.yaml
 rem kubectl apply -f ./%name%.yaml
+
+kubectl delete pod -l app=graphql-svr-pod

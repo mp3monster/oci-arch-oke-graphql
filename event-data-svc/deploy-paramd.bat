@@ -5,6 +5,8 @@ rem build the docker image and set the tag
 # %4 is the OCI Region in short form e.g. iad
 
 set name=event-data-svc
+set podname=event-data-pod
+
 
 echo deploying %name% for %1
 echo 
@@ -19,3 +21,5 @@ docker push %4.ocir.io/%3/%name%:latest
 rem deploy the container and then the service wrapper
 kubectl apply -f ./deployment.yaml
 kubectl apply -f ./%name%.yaml
+
+kubectl delete pod -l app=%podname%
