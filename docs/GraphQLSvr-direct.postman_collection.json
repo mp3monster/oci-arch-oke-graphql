@@ -34,7 +34,142 @@
 				"body": {
 					"mode": "graphql",
 					"graphql": {
-						"query": "query getEvent {\r\n    event(id: \"ak0225c24vhp\") {\r\n        place\r\n        time\r\n        eventType\r\n        id\r\n        title\r\n    }\r\n}",
+						"query": "query {\r\n    event(id: \"ak0225c24vhp\") {\r\n        place\r\n        time\r\n        eventType\r\n        id\r\n        title\r\n    }\r\n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "129.80.133.103",
+					"host": [
+						"129",
+						"80",
+						"133",
+						"103"
+					]
+				},
+				"description": "This queries for a single event and retrieves a subset of the attributes available."
+			},
+			"response": []
+		},
+		{
+			"name": "GQLEventDataComplexQuery",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "auth-token",
+						"value": "add-token",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query {\r\n    event(id: \"ak0225c24vhp\") {\r\n        place\r\n        time\r\n        eventType\r\n        id\r\n        title\r\n        sources\r\n        providers {name}\r\n    }\r\n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "129.80.133.103",
+					"host": [
+						"129",
+						"80",
+						"133",
+						"103"
+					]
+				},
+				"description": "This queries for a single event and retrieves a subset of the attributes available."
+			},
+			"response": []
+		},
+		{
+			"name": "GQLEventDataDelete",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "auth-token",
+						"value": "add-token",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation {\r\n    deleteEvent(id: \"ci40246296\")\r\n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "129.80.133.103",
+					"host": [
+						"129",
+						"80",
+						"133",
+						"103"
+					]
+				},
+				"description": "This queries for a single event and retrieves a subset of the attributes available."
+			},
+			"response": []
+		},
+		{
+			"name": "GQLRefDataDelete",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "auth-token",
+						"value": "add-token",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation {\r\n    deleteProvider(code:\"bkn\")\r\n}",
 						"variables": ""
 					}
 				},
