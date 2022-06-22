@@ -3,14 +3,13 @@
 
 import { loadFilesSync } from '@graphql-tools/load-files';
 import EventsInternalAPI from './EventsInternalAPI.js';
-import { ApolloServer } from 'apollo-server';
-import { resolvers } from './resolvers.js';
 import ProviderInternalAPI from './ProviderInternalAPI.js';
-
+import { resolvers } from './resolvers.js';
+import { ApolloServer } from 'apollo-server';
 
 
 const server = new ApolloServer({
-  debug : true,
+  debug : false,
   typeDefs: loadFilesSync('./schema.graphql'),
   resolvers,
   dataSources: () => {

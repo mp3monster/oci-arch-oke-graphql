@@ -2,8 +2,6 @@
 # Copyright(c) 2022, Oracle and / or its affiliates.
 # All rights reserved. The Universal Permissive License(UPL), Version 1.0 as shown at http: // oss.oracle.com/licenses/upl
 #
-# useful resources
-# https://flask.palletsprojects.com/en/2.1.x/
 #
 
 
@@ -19,20 +17,52 @@ import sys
 from datetime import datetime, date, time
 
 
+# define constants rather than embedding repeated string literals
 DT_FORMAT = "%d/%m/%Y, %H:%M:%S"
+TYPE_CONST = "type"
+ID_CONST = "id"
+GEOMETRY = "geometry"
+EVPROPERTIES = "properties"
+CONTENT_TYPE = "application/json"
+GET = "GET"
+DELETE = "DELETE"
+MINTIME = "mintime"
+MAXTIME = "maxtime"
+TIME = "time"
+TSUNAMI = "tsunami"
+STATUS = "status"
+MIN = "min"
+MAX = "max"
+MINMAG = "minmag"
+MAXMAG = "maxmag"
+MAG = "mag"
+MAGTYPE = "magType"
+ALERT = "alert"
+HOST = 'host'
+PORT = 'port'
+SERVER = 'server'
 
 app = Flask(__name__)
 
 
-def getconfig():
+"""
+Load the configuration from the event-svc configuration file.
+The configuration needs to include:
+  - server
+  - host
+  - port
+  - source data file
+"""
+
+
+def get_config():
     config = configparser.RawConfigParser()
     config.read('event-svc.cfg')
 
     return config
 
 
-def loaddata(config):
-
+def load_data(config):
     # Opening JSON file
     filehandle = open(config.get('data', 'file'))
     logger.info("using data set %s", filehandle)
@@ -44,9 +74,9 @@ def loaddata(config):
 # separate the metadata record from the events
 
 
-def extractmetadata(eventdata):
+def extract_metadata(eventdata):
     for event in eventdata:
-        if (event["type"] == "FeatureCollection"):
+        if (event[TYPE_CONST] == "FeatureCollection"):
             return event
 
     logger.info("No metadata found")
@@ -63,34 +93,29 @@ def convert_time(epoch_time):
     return datestr
 
 
-def cleansedata(eventdata):
+def cleanse_data(eventdata):
     messages = "cleansing data -\n"
     cleandata = []
 
     for event in eventdata:
-        if (event["type"] == "FeatureCollection"):
+        if (event[TYPE_CONST] == "FeatureCollection"):
             messages += "Located meta data entry\n"
-        elif (event["type"] == "Feature"):
-            properties = event["properties"]
-            properties["id"] = event["id"]
-            properties["geometry"] = event["geometry"]
+        elif (event[TYPE_CONST] == "Feature"):
+            properties = event[EVPROPERTIES]
+            properties[ID_CONST] = event[ID_CONST]
+            properties[GEOMETRY] = event[GEOMETRY]
 
             # convert milliseconds from epoch to a string representation
-            properties['time'] = convert_time(properties["time"])
+            properties[TIME] = convert_time(properties[TIME])
             properties['updated'] = convert_time(properties["updated"])
 
             cleandata.append(properties)
         else:
-            messages += "Unexpected event type " + event["type"] + "\n"
+            messages += "Unexpected event type " + event[TYPE_CONST] + "\n"
 
     logger.debug(messages)
 
     return cleandata
-
-
-@ app.route('/test', strict_slashes=False)
-def test():
-    return "confirming, test ok"
 
 
 @ app.route('/health', strict_slashes=False)
@@ -106,12 +131,17 @@ def health():
     return json
 
 
+@ app.route('/test', strict_slashes=False)
+def test():
+    return "confirming, test ok"
+
+
 @ app.route('/metadata', strict_slashes=False)
-def getmetadata():
+def get_metadata():
     return metadata
 
 
-def stringelement(properties, testvalue, attributename):
+def string_element(properties, testvalue, attributename):
     result = False
     value = properties[attributename]
     if (value != None) and (testvalue != None):
@@ -125,7 +155,7 @@ def stringelement(properties, testvalue, attributename):
     return result
 
 
-def booleanelement(properties, testvalue, attributename):
+def boolean_element(properties, testvalue, attributename):
     result = False
     value = properties[attributename]
     if (value != None) and (testvalue != None):
@@ -145,11 +175,11 @@ def booleanelement(properties, testvalue, attributename):
     return result
 
 
-def numericelement(properties, testvalue, attributename):
+def numeric_element(properties, testvalue, attributename):
     result = False
     actualattributename = attributename
-    if attributename in operatorcriteriamap:
-        actualattributename = operatorcriteriamap[attributename]
+    if attributename in OPERATOR_CRITERIA_MAP:
+        actualattributename = OPERATOR_CRITERIA_MAP[attributename]
 
     value = properties[actualattributename]
     if (value != None) and (testvalue != None):
@@ -161,9 +191,9 @@ def numericelement(properties, testvalue, attributename):
             logger.debug("Value not numeric " +
                          str(value) + " or " + testvalue)
 
-        if attributename.startswith("min"):
+        if attributename.startswith(MIN):
             result = (value <= testvalue)
-        elif attributename.startswith("max"):
+        elif attributename.startswith(MAX):
             result = (value >= testvalue)
         else:
             result = (value == testvalue)
@@ -171,36 +201,35 @@ def numericelement(properties, testvalue, attributename):
     return result
 
 
-operatorcriteriamap = {"mintime": "time",
-                       "maxtime": "time",
-                       "minmag": "mag",
-                       "maxmag": "mag"}
+OPERATOR_CRITERIA_MAP = {MINTIME: TIME,
+                         MAXTIME: TIME,
+                         MINMAG: MAG,
+                         MAXMAG: MAG}
 
-criteriamap = {"mintime": numericelement,
-               "maxtime": numericelement,
-               "time": numericelement,
-               "tsunami": booleanelement,
-               "status": stringelement,
-               "magtype": stringelement,
-               "type": stringelement,
-               "minmag": numericelement,
-               "maxmag": numericelement,
-               "mag": numericelement,
-               "magType": stringelement,
-               "alert": stringelement, }
+CRITERIA_MAP = {MINTIME: numeric_element,
+                MAXTIME: numeric_element,
+                TIME: numeric_element,
+                TSUNAMI: boolean_element,
+                STATUS: string_element,
+                TYPE_CONST: string_element,
+                MINMAG: numeric_element,
+                MAXMAG: numeric_element,
+                MAG: numeric_element,
+                MAGTYPE: string_element,
+                ALERT: string_element}
 
 
-@app.route('/event', methods=['GET'], strict_slashes=False)
-def getevent():
+@app.route('/event', methods=[GET], strict_slashes=False)
+def get_event():
     logger.debug("Get event - args are %s", str(request.args))
     response_code = 404
 
     matched_event = None
     event_id = ''
-    if (request.args != None) and (len(request.args) > 0) and "id" in request.args:
-        event_id = request.args.get('id')
+    if (request.args != None) and (len(request.args) > 0) and ID_CONST in request.args:
+        event_id = request.args.get(ID_CONST)
         for event in eventdata:
-            if (event['id'] != None) and (event['id'] == event_id):
+            if (event[ID_CONST] != None) and (event[ID_CONST] == event_id):
                 matched_event = event
                 response_code = 200
                 break
@@ -219,24 +248,24 @@ def getevent():
 
     response = Response(response=responsestr,
                         status=response_code,
-                        content_type="application/json")
+                        content_type=CONTENT_TYPE)
     logger.debug("Returning response object:" + str(response))
 
     return response
 
 
-@app.route('/event', methods=['DELETE'], strict_slashes=False)
-def deleteevent():
+@app.route('/event', methods=[DELETE], strict_slashes=False)
+def delete_event():
     logger.debug("delete event - args are %s", str(request.args))
 
     response_code = 410
     event_id = ''
     logger.debug("Pre-deletion count - %d", len(eventdata))
-    if (request.args != None) and (len(request.args) > 0) and "id" in request.args:
+    if (request.args != None) and (len(request.args) > 0) and ID_CONST in request.args:
         # special case
-        event_id = request.args['id']
+        event_id = request.args[ID_CONST]
         for event in eventdata:
-            if (event['id'] != None) and (event['id'] == event_id):
+            if (event[ID_CONST] != None) and (event[ID_CONST] == event_id):
                 eventdata.remove(event)
                 response_code = 202
                 break
@@ -248,11 +277,11 @@ def deleteevent():
 
     response = Response(response=json.dumps(record_count, indent=2),
                         status=response_code,
-                        content_type="application/json")
+                        content_type=CONTENT_TYPE)
     return response
 
 
-def matchlisttostring(matchedevents):
+def match_list_to_string(matchedevents):
     responsestr = ""
     if len(matchedevents) > 0:
         responsestr = json.dumps(matchedevents, indent=2, sort_keys=True)
@@ -260,7 +289,7 @@ def matchlisttostring(matchedevents):
     return responsestr
 
 
-def createsearchcriteria(args):
+def create_search_criteria(args):
     searchcriteria = None
 
     if (args != None) and (len(args) > 0):
@@ -276,11 +305,11 @@ def createsearchcriteria(args):
     return searchcriteria
 
 
-def applycriteria(searchcriteria, properties):
+def apply_criteria(searchcriteria, properties):
     matched = True
     for criteria in searchcriteria:
-        if criteria in criteriamap:
-            matched = criteriamap[criteria](
+        if criteria in CRITERIA_MAP:
+            matched = CRITERIA_MAP[criteria](
                 properties, searchcriteria.get(criteria), criteria)
         else:
             logger.warning("unknown search criteria - " + criteria)
@@ -291,18 +320,18 @@ def applycriteria(searchcriteria, properties):
     return matched
 
 
-@app.route('/events', methods=['GET'], strict_slashes=False)
-def getevents():
+@app.route('/events', methods=[GET], strict_slashes=False)
+def get_events():
     logger.debug("Get events - args are %s", str(request.args))
     response_code = 200
 
     matchedevents = list()
-    searchcriteria = createsearchcriteria(request.args)
+    searchcriteria = create_search_criteria(request.args)
 
     if searchcriteria != None:
         # examine each event
         for event in eventdata:
-            if (applycriteria(searchcriteria, event)):
+            if (apply_criteria(searchcriteria, event)):
                 logger.debug("match for " + str(event))
                 matchedevents.append(event)
 
@@ -311,15 +340,15 @@ def getevents():
         matchedevents = eventdata
 
     logger.debug("Get events found %d matches", len(matchedevents))
-    responsestr = matchlisttostring(matchedevents)
+    responsestr = match_list_to_string(matchedevents)
     logger.debug("Get events returning %s", responsestr)
 
     return Response(response=responsestr,
                     status=response_code,
-                    content_type="application/json")
+                    content_type=CONTENT_TYPE)
 
 
-@app.route('/latestEvent', methods=['GET'], strict_slashes=False)
+@app.route('/latestEvent', methods=[GET], strict_slashes=False)
 def get_latest_event():
     logger.debug("Get latest event ")
 
@@ -344,11 +373,11 @@ def get_latest_event():
 
     response = Response(response=responsestr,
                         status=response_code,
-                        content_type="application/json")
+                        content_type=CONTENT_TYPE)
     return (response)
 
 
-@ app.route('/raw', methods=['GET'], strict_slashes=False)
+@ app.route('/raw', methods=[GET], strict_slashes=False)
 def raw():
     pretty_str = json.dumps(eventdata, indent=2, sort_keys=True)
     logger.debug(pretty_str)
@@ -374,12 +403,12 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.debug("========== Preparing ==========")
 
-config = getconfig()
-os.environ['host'] = config.get('server', 'host')
-os.environ['port'] = config.get('server', 'port')
-eventdata = loaddata(config)
-metadata = extractmetadata(eventdata)
-eventdata = cleansedata(eventdata)
+config = get_config()
+os.environ[HOST] = config.get(SERVER, HOST)
+os.environ[PORT] = config.get(SERVER, PORT)
+eventdata = load_data(config)
+metadata = extract_metadata(eventdata)
+eventdata = cleanse_data(eventdata)
 pretty_events_str = json.dumps(eventdata, indent=2, sort_keys=True)
 pretty_metadata_str = json.dumps(metadata, indent=2, sort_keys=True)
 
@@ -390,6 +419,6 @@ logger.debug("metadata data:" + pretty_metadata_str)
 logger.debug("========== ready ==========")
 
 if __name__ == '__main__':
-    app.run(debug=config.getint('server', 'debug'),
-            port=config.getint('server', 'port'),
-            host=config.get('server', 'host'))
+    app.run(debug=config.getint(SERVER, 'debug'),
+            port=config.getint(SERVER, PORT),
+            host=config.get(SERVER, HOST))
